@@ -218,7 +218,8 @@ class CTTZip{
 					if (entryPath.getParent() != null && entryPath.getParent().toString().equals("mx\\accounting\\Rule")) {
 						toBeDeleted = true;
 					}
-					if(!toBeDeleted){		
+					if(!toBeDeleted){
+						System.out.println(entryPath + Boolean.toString(Files.isDirectory(entryPath)));
 						addToTempFolder(cm201fs, "/", cm201zipInStream, entryPath);
 					}
 				}
@@ -252,7 +253,9 @@ class CTTZip{
 	 * @throws IOException
 	 */
 	private void addToTempFolder(FileSystem zipfs, String directoryPath, InputStream inputStream, Path entryPath) throws IOException{
+		//System.out.println(entryPath);
 		Path internalTargetPath = zipfs.getPath(directoryPath + "/" + entryPath.toString());
+		//System.out.println(internalTargetPath);
 		Files.createDirectories(internalTargetPath.getParent());
 		OutputStream fileOut = Files.newOutputStream(internalTargetPath);
 		byte[] buffer = new byte[BUFFER_SIZE];

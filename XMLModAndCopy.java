@@ -86,22 +86,23 @@ class XMLModAndCopy{
 		// write the content into Xml file
 		newDoc.setXmlStandalone(true);
 	    DOMSource source = new DOMSource(newDoc);
-	    Writer writer = new OutputStreamWriter(byteOutput);
-	    StringWriter strWriter = new StringWriter();
-	    //add a custom xml declaration
-	    String customXML = "<?xml version=\"1.0\"?>\n";
-	    StreamResult result = new StreamResult(strWriter);
+	    try ( 
+	    		Writer writer = new OutputStreamWriter(byteOutput);
+	    		StringWriter strWriter = new StringWriter();
+	    	){
+	    	//add a custom xml declaration
+		    String customXML = "<?xml version=\"1.0\"?>\n";
+		    StreamResult result = new StreamResult(strWriter);
 
-	    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-	    Transformer transformer = transformerFactory.newTransformer();
-	    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-	    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-	    //remove normal XML declaration
-	    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-	    transformer.transform(source, result);
-	    writer.write(customXML + strWriter.toString());
-	    strWriter.close();
-	    writer.close();
+		    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		    Transformer transformer = transformerFactory.newTransformer();
+		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		    //remove normal XML declaration
+		    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		    transformer.transform(source, result);
+		    writer.write(customXML + strWriter.toString());
+	    }
 		return byteOutput;
 	}
 	
@@ -116,14 +117,13 @@ class XMLModAndCopy{
 		if (args.get("modify") != null){
 			switch (args.get("modify")){
 			case "Tick Additional Entity":
-				removeUDFs(newDoc);
+				removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField");
 				addUDF(newDoc, docWithAddedNodes);
 				break;
 			case "Tick A Different Entity":
 				changeUDF(newDoc);
 				break;
 			default:
-				System.out.print("An invalid option was entered.\n");
 				System.out.println("Nothing has been done to this XML.");
 			}
 		}
@@ -147,9 +147,13 @@ class XMLModAndCopy{
 		}
 	}
 	
-	private void removeUDFs(Document doc) throws XPathExpressionException{
-		String xPathExp = "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField";
-		//remove user defined fields
+	/**
+	 * Removes nodes and children of the given XPath - can remove multiple nodes with the same XPath
+	 * @param doc
+	 * @param xPathExp
+	 * @throws XPathExpressionException
+	 */
+	private void removeXPaths(Document doc, String xPathExp) throws XPathExpressionException{
 		NodeList nodeList = (NodeList) xPath.compile(xPathExp).evaluate(doc, XPathConstants.NODESET);
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node udfNode = nodeList.item(i);

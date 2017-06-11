@@ -1,15 +1,19 @@
 package xmlTools;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.TransformerException;
-import javax.xml.xpath.*;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.xml.sax.SAXException;
 
 import javafx.application.Application;
 import javafx.beans.value.ObservableValue;
@@ -31,12 +35,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 /**
  * 
@@ -46,7 +46,6 @@ import javafx.stage.FileChooser;
 class FileOpenPane extends GridPane{
 	private static final Logger LOGGER = Logger.getLogger( CTTZip.class.getName() );
 	private static FileHandler loggerFileHandler = null;
-
 	
 	private final TextField inputFilePath = new TextField();
 	private final TextField outputFilePath = new TextField();
@@ -64,12 +63,8 @@ class FileOpenPane extends GridPane{
 	private HBox processingActionPane = new HBox(8);
 	private HBox processingActionSubPane = new HBox(8);
 	
-	public FileOpenPane(){		
-		try {
-			loggerFileHandler = new FileHandler("log.txt", false);
-		} catch (SecurityException | IOException e) {
-			e.printStackTrace();
-		}
+	public FileOpenPane() throws RuntimeException, IOException {
+		loggerFileHandler = new FileHandler("XMLCopy-%g.log", 1024*1024, 1, true);
 		loggerFileHandler.setFormatter(new SimpleFormatter());
 		LOGGER.addHandler(loggerFileHandler);
 		LOGGER.log(Level.INFO, "Start Log");
@@ -110,9 +105,15 @@ class FileOpenPane extends GridPane{
         //set button listeners
 		inputButton.setOnAction((ActionEvent event) -> FileChooser(true));	
 		outputButton.setOnAction((ActionEvent event) -> FileChooser(false));
-		copyButton.setOnAction((ActionEvent event) -> copy());
-
-		
+		copyButton.setOnAction((ActionEvent event) -> {
+			try{
+				copy();
+			} catch (XPathExpressionException | IOException | URISyntaxException | ParserConfigurationException | SAXException | TransformerException e) {
+				LOGGER.log(Level.SEVERE, e.toString(), e);
+				throw new RuntimeException(e);
+			}
+		});
+	
 		//set RadioButton listener
 		processingActionGroup.selectedToggleProperty().addListener((ObservableValue<? extends Toggle> ov,
 				Toggle old_toggle, Toggle new_toggle) -> changeProcessingActionSubPane(ov, old_toggle, new_toggle));
@@ -172,7 +173,7 @@ class FileOpenPane extends GridPane{
     }
 	
 	//listener method for copy button
-	private void copy(){
+	private void copy() throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException{
 		CTTZip copyMachine = new CTTZip();
 		RadioButton selectedProcessingAction = (RadioButton)processingActionGroup.getSelectedToggle();
 		if (selectedProcessingAction != null)
@@ -199,11 +200,9 @@ class FileOpenPane extends GridPane{
 			}
 		} catch (FileNotFoundException e){
 			Alert alert = new Alert(AlertType.WARNING, "Files do not exist!");
+			LOGGER.log(Level.WARNING, e.toString(), e);
 			alert.showAndWait();
-		} catch (XPathExpressionException | IOException | URISyntaxException | ParserConfigurationException
-				| SAXException | TransformerException e) {
-			LOGGER.log(Level.SEVERE, e.toString(), e);
-		}		
+		}	
 	}
 }
 
@@ -213,21 +212,20 @@ class FileOpenPane extends GridPane{
  *
  */
 public class CopyAndModifyXML extends Application{
-	
-	@Override //Override start method in Application
-	public void start(final Stage stage){
 
-		
-        final GridPane inputGridPane = new FileOpenPane();
-       
-        final Pane rootGroup = new VBox(12);
-        rootGroup.getChildren().addAll(inputGridPane);
-        rootGroup.setPadding(new Insets(12, 12, 12, 12));
- 
-        stage.setScene(new Scene(rootGroup));
-		
+	@Override //Override start method in Application
+	public void start(final Stage stage) throws SecurityException, IOException{
+		GridPane inputGridPane;
+		inputGridPane = new FileOpenPane();
+		final Pane rootGroup = new VBox(12);
+	    rootGroup.getChildren().addAll(inputGridPane);
+	    rootGroup.setPadding(new Insets(12, 12, 12, 12));
+	 
+	    stage.setScene(new Scene(rootGroup));
+			
 		stage.setTitle("Copy XML files");
 		stage.show();
+		        
 	}
 	
 	public static void main(String[] args) {
