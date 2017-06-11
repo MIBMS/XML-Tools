@@ -63,6 +63,8 @@ class FileOpenPane extends GridPane{
 	private HBox processingActionPane = new HBox(8);
 	private HBox processingActionSubPane = new HBox(8);
 	
+	private CopiedObject copyMachine = new CTTZip();
+	
 	public FileOpenPane() throws RuntimeException, IOException {
 		loggerFileHandler = new FileHandler("XMLCopy-%g.log", 1024*1024, 1, true);
 		loggerFileHandler.setFormatter(new SimpleFormatter());
@@ -110,6 +112,7 @@ class FileOpenPane extends GridPane{
 				copy();
 			} catch (XPathExpressionException | IOException | URISyntaxException | ParserConfigurationException | SAXException | TransformerException e) {
 				LOGGER.log(Level.SEVERE, e.toString(), e);
+				abort();
 				throw new RuntimeException(e);
 			}
 		});
@@ -174,7 +177,6 @@ class FileOpenPane extends GridPane{
 	
 	//listener method for copy button
 	private void copy() throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException{
-		CTTZip copyMachine = new CTTZip();
 		RadioButton selectedProcessingAction = (RadioButton)processingActionGroup.getSelectedToggle();
 		if (selectedProcessingAction != null)
 		{
@@ -195,7 +197,8 @@ class FileOpenPane extends GridPane{
 			{
 				copyMachine.setArgs("input", inputFilePath.getText());
 				copyMachine.setArgs("output", outputFilePath.getText());
-				copyMachine.startCopying();
+				int numCopiedXMLs = copyMachine.startCopying();
+				LOGGER.log(Level.INFO, "Program successfully copied " + numCopiedXMLs + " XMLs.");
 				System.exit(0);
 			}
 		} catch (FileNotFoundException e){
@@ -203,6 +206,10 @@ class FileOpenPane extends GridPane{
 			LOGGER.log(Level.WARNING, e.toString(), e);
 			alert.showAndWait();
 		}	
+	}
+	
+	private void abort(){
+		copyMachine.abort();
 	}
 }
 

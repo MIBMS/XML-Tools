@@ -32,7 +32,15 @@ import org.xml.sax.SAXException;
  * Unzips CTTs
  *
  */
-class CTTZip{
+
+abstract class CopiedObject{
+	abstract int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException;
+	abstract void abort();
+	abstract void setArgs(String key, String value);
+	
+}
+
+class CTTZip extends CopiedObject{
 	final static int BUFFER_SIZE = 4096;
 	private HashMap<String, String> args = new HashMap<String, String>();
 	
@@ -43,14 +51,28 @@ class CTTZip{
 	/**
 	 * Set arguments for the CopyAndModifyXML class, e.g. instructions for modification
 	 */
+	@Override
 	public void setArgs(String key, String value){
 		args.put(key, value);
 	}
 	
-	public void startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException{
-		rezipFile(processingXMLs(unzipFile(), args));
+	@Override
+	public int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException{
+		HashMap<Path, ByteArrayOutputStream> copiedXMLs;
+		rezipFile(copiedXMLs = processingXMLs(unzipFile(), args));
+		return copiedXMLs.size();
 	}
 	
+	/**
+	 * sequence to be run when main program is aborted
+	 */
+	@Override
+	public void abort(){
+		File cm201Zip = new File("tempcm201.zip");
+		if (cm201Zip.exists()){
+			cm201Zip.delete();
+		}
+	}
 	
 	/**
 	 * Processes XMLs by passing each single XML to XMLModAndCopy
@@ -172,8 +194,10 @@ class CTTZip{
 			while ((entry = zin.getNextEntry()) != null) {
 				boolean toBeDeleted = false;
 				Path entryPath = Paths.get(entry.getName());
+				//System.out.println(entryPath +  Boolean.toString(Files.isDirectory(entryPath)));
+				//System.out.println(entryPath +  Boolean.toString(entry.isDirectory()));
 				//copy everything but cm201
-				if (entryPath.getFileName().toString().equals("CM.201.zip")) {
+				if (entryPath.getFileName().toString().equals("CM.201.zip") || entry.isDirectory()) {
 					toBeDeleted = true;
 			    	BufferedOutputStream bos = new BufferedOutputStream(cm201zip);
 			        byte[] buffer = new byte[BUFFER_SIZE];
@@ -215,11 +239,12 @@ class CTTZip{
 					boolean toBeDeleted = false;
 					Path entryPath = Paths.get(entry.getName());
 					//replace existing rules in zip
-					if (entryPath.getParent() != null && entryPath.getParent().toString().equals("mx\\accounting\\Rule")) {
+					if (entryPath.getParent() != null && entryPath.getParent().toString().equals("mx\\accounting\\Rule")
+							|| entry.isDirectory()) {
 						toBeDeleted = true;
 					}
 					if(!toBeDeleted){
-						System.out.println(entryPath + Boolean.toString(Files.isDirectory(entryPath)));
+						//System.out.println(entryPath + Boolean.toString(Files.isDirectory(entryPath)));
 						addToTempFolder(cm201fs, "/", cm201zipInStream, entryPath);
 					}
 				}
@@ -240,8 +265,9 @@ class CTTZip{
 		//end test zip
 		
 
-	} 	    
+	}
 	
+
 	
 	
 	/**
@@ -253,7 +279,7 @@ class CTTZip{
 	 * @throws IOException
 	 */
 	private void addToTempFolder(FileSystem zipfs, String directoryPath, InputStream inputStream, Path entryPath) throws IOException{
-		//System.out.println(entryPath);
+		//System.out.println(entryPath +  Boolean.toString(Files.isDirectory(entryPath)));
 		Path internalTargetPath = zipfs.getPath(directoryPath + "/" + entryPath.toString());
 		//System.out.println(internalTargetPath);
 		Files.createDirectories(internalTargetPath.getParent());
