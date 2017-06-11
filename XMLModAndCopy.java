@@ -117,7 +117,8 @@ class XMLModAndCopy{
 		if (args.get("modify") != null){
 			switch (args.get("modify")){
 			case "Tick Additional Entity":
-				removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField");
+				removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField"
+						+ "[fieldLabel=\"FilterDetails\"]");
 				addUDF(newDoc, docWithAddedNodes);
 				break;
 			case "Tick A Different Entity":
