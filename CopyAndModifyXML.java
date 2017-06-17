@@ -215,7 +215,7 @@ class FileOpenPane extends GridPane{
 
 /**
  * 
- * main class extends JavaFX application class
+ * GUI interface main class
  *
  */
 public class CopyAndModifyXML extends Application{
