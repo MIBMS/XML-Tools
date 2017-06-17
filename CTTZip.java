@@ -29,16 +29,10 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * Unzips CTTs
+ * Unzips and rezips CTTs
  *
  */
 
-abstract class CopiedObject{
-	abstract int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException;
-	abstract void abort();
-	abstract void setArgs(String key, String value);
-	
-}
 
 class CTTZip extends CopiedObject{
 	final static int BUFFER_SIZE = 4096;
