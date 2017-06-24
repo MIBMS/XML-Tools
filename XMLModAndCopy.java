@@ -38,7 +38,10 @@ class XMLModAndCopy{
 	private HashMap<String, String> args;
 	private XPath xPath;
 	
-	//no-arg constructor
+	/**
+	 * 
+	 * @throws ParserConfigurationException
+	 */
 	XMLModAndCopy() throws ParserConfigurationException{
 		this(new HashMap<String, String>());
 	}

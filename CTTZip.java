@@ -34,7 +34,7 @@ import org.xml.sax.SAXException;
  */
 
 
-class CTTZip extends CopiedObject{
+class CTTZip implements Copyable{
 	final static int BUFFER_SIZE = 4096;
 	private HashMap<String, String> args = new HashMap<String, String>();
 	
@@ -61,7 +61,7 @@ class CTTZip extends CopiedObject{
 	 * sequence to be run when main program is aborted
 	 */
 	@Override
-	public void abort(){
+	public void abortCopy(){
 		File cm201Zip = new File("tempcm201.zip");
 		if (cm201Zip.exists()){
 			cm201Zip.delete();
