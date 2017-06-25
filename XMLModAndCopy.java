@@ -8,6 +8,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,28 +34,16 @@ import org.xml.sax.SAXException;
  * Modifies and copies a single XML file
  */
 class XMLModAndCopy{
-	private DocumentBuilderFactory factory;
-	private DocumentBuilder builder;
-	private HashMap<String, String> args;
-	private XPath xPath;
+	private static final Logger LOGGER = Logger.getLogger( XMLModAndCopy.class.getName() );
 	
 	/**
-	 * 
+	 * private no-arg constructor - cannot be instantiated
 	 * @throws ParserConfigurationException
 	 */
-	XMLModAndCopy() throws ParserConfigurationException{
-		this(new HashMap<String, String>());
+	private XMLModAndCopy() {
 	}
 	
 	
-	XMLModAndCopy(HashMap<String, String> args) throws ParserConfigurationException{
-		this.factory = DocumentBuilderFactory.newInstance();
-		this.builder = factory.newDocumentBuilder();
-		this.xPath =  XPathFactory.newInstance().newXPath();
-		this.args = args;
-	}
-	
-
 	/**
 	 * Copies a single XML
 	 * @param ruleMap
@@ -63,8 +52,12 @@ class XMLModAndCopy{
 	 * @throws SAXException 
 	 * @throws XPathExpressionException 
 	 * @throws TransformerException 
+	 * @throws ParserConfigurationException 
 	 */
-	public ByteArrayOutputStream copyXML(InputStream ruleIn) throws SAXException, IOException, XPathExpressionException, TransformerException{
+	public static ByteArrayOutputStream copyXML(InputStream ruleIn, HashMap<String, String> args) throws SAXException, IOException, XPathExpressionException, TransformerException, ParserConfigurationException{
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		XPath xPath = XPathFactory.newInstance().newXPath();
 		ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
 		//convert to input streams
 		Document doc = builder.parse(ruleIn);
@@ -114,31 +107,33 @@ class XMLModAndCopy{
 	 * @throws XPathExpressionException to CopyXML
 	 * @throws IOException to CopyXML
 	 * @throws SAXException to CopyXML
+	 * @throws ParserConfigurationException 
 	 */
-	private void modifyXML(Document newDoc, HashMap<String, String> args) throws SAXException, IOException, XPathExpressionException{
+	private static void modifyXML(Document newDoc, HashMap<String, String> args) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
 		Document docWithAddedNodes = null;
 		if (args.get("modify") != null){
 			switch (args.get("modify")){
 			case "Tick Additional Entity":
 				removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField"
 						+ "[fieldLabel=\"FilterDetails\"]");
-				addUDF(newDoc, docWithAddedNodes);
+				addUDF(newDoc, docWithAddedNodes, args);
 				break;
 			case "Tick A Different Entity":
-				changeUDF(newDoc);
+				changeUDF(newDoc, args);
 				break;
 			default:
-				System.out.println("Nothing has been done to this XML.");
+				LOGGER.info("Nothing has been done to this XML.");
 			}
 		}
 	}
 	
-	private void changeUDF(Document doc) throws XPathExpressionException{
+	private static void changeUDF(Document doc, HashMap<String, String> args) throws XPathExpressionException{
+		XPath xPath = XPathFactory.newInstance().newXPath();
 		String xPathExp = "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField[fieldValue=\""
 				+ args.get("fromEntity") + "\" and fieldLabel=\"TrnEntity\"]/fieldValue";
 		NodeList nodeList = (NodeList) xPath.compile(xPathExp).evaluate(doc, XPathConstants.NODESET);
 		if (nodeList.getLength() == 0){
-			System.out.println("No nodes to replace.");
+			LOGGER.info("No nodes to replace.");
 		}				
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node fieldValueNode = nodeList.item(i);
@@ -157,7 +152,8 @@ class XMLModAndCopy{
 	 * @param xPathExp
 	 * @throws XPathExpressionException
 	 */
-	private void removeXPaths(Document doc, String xPathExp) throws XPathExpressionException{
+	private static void removeXPaths(Document doc, String xPathExp) throws XPathExpressionException{
+		XPath xPath = XPathFactory.newInstance().newXPath();
 		NodeList nodeList = (NodeList) xPath.compile(xPathExp).evaluate(doc, XPathConstants.NODESET);
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node udfNode = nodeList.item(i);
@@ -166,18 +162,21 @@ class XMLModAndCopy{
 	}
 		
 	
-	private void addUDF(Document newDoc, Document docWithAddedNodes) throws XPathExpressionException, SAXException, IOException{
+	private static void addUDF(Document newDoc, Document docWithAddedNodes, HashMap<String, String> args) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException{
 		InputSource addUDFSource = new InputSource(new StringReader(addAdditionalEntity(args.get("entity"))));
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document addUDFDoc = builder.parse(addUDFSource);
 
 
 		Node toBeCopiedEntity = newDoc.importNode(addUDFDoc.getDocumentElement(), true);
+		XPath xPath = XPathFactory.newInstance().newXPath();
 		String xPathExp = "MxML/mxAccountingIRULESet/mxAccountingIRULE";
 		Node mxAccountingIRULENode = ((NodeList) xPath.compile(xPathExp).evaluate(newDoc, XPathConstants.NODESET)).item(0);
 		mxAccountingIRULENode.appendChild(toBeCopiedEntity);
 	}
 	
-	private String addAdditionalEntity(String entity){
+	private static String addAdditionalEntity(String entity){
 		//add the additional entity into the document
 		
 		String additionalEntity = ""

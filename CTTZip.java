@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -32,9 +33,9 @@ import org.xml.sax.SAXException;
  * Unzips and rezips CTTs
  *
  */
-
-
 class CTTZip implements Copyable{
+	private static final Logger LOGGER = Logger.getLogger( CTTZip.class.getName() );
+	
 	final static int BUFFER_SIZE = 4096;
 	private HashMap<String, String> args = new HashMap<String, String>();
 	
@@ -87,9 +88,8 @@ class CTTZip implements Copyable{
 			//convert to input streams
 			ByteArrayInputStream ruleIn = new ByteArrayInputStream(ruleOut.getValue().toByteArray());
 			//creates a new instance of the copying XML class to copy and modify each XML
-			XMLModAndCopy modAndCopyXML = new XMLModAndCopy(args);
-			System.out.println("Copying " + ruleOut.getKey() + "...");
-		    modRuleArray.put(ruleOut.getKey(), modAndCopyXML.copyXML(ruleIn));
+			LOGGER.info("Copying " + ruleOut.getKey() + "...");
+		    modRuleArray.put(ruleOut.getKey(), XMLModAndCopy.copyXML(ruleIn, args));
 		} 
 			
 	return modRuleArray;
@@ -171,7 +171,7 @@ class CTTZip implements Copyable{
 	    URI zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getPath(), null);
 	    //System.out.println(zipUri);
 	    try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
-	    	System.out.println("Recreating the zip with the copied rules...");
+	    	LOGGER.info("Recreating the zip with the copied rules...");
 			if (!(new File(args.get("input"))).exists() || !(new File(args.get("input"))).canRead()){
 				throw new FileNotFoundException("Cannot find/read input file " + args.get("input") + ".");
 			}

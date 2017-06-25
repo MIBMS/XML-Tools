@@ -4,11 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
@@ -17,8 +14,10 @@ import org.xml.sax.SAXException;
 
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -35,12 +34,11 @@ import javafx.stage.Stage;
 
 /**
  * 
- * Create a custom Pane to be displayed in the application
+ * Create a custom Pane to display options for copying accounting rules
  *  
  */
 class AccountingCopyPane extends GridPane{
-	private static final Logger LOGGER = Logger.getLogger( CTTZip.class.getName() );
-	private static FileHandler loggerFileHandler = null;
+	private static final Logger LOGGER = Logger.getLogger( AccountingCopyPane.class.getName() );
 	
 	private final TextField inputFilePath = new TextField();
 	private final TextField outputFilePath = new TextField();
@@ -60,11 +58,7 @@ class AccountingCopyPane extends GridPane{
 	
 	private Copyable copyMachine = new CTTZip();
 	
-	public AccountingCopyPane() throws RuntimeException, IOException {
-		loggerFileHandler = new FileHandler("XMLCopy-%g.log", 1024*1024, 1, true);
-		loggerFileHandler.setFormatter(new SimpleFormatter());
-		LOGGER.addHandler(loggerFileHandler);
-		LOGGER.log(Level.INFO, "Start Log");
+	public AccountingCopyPane() throws RuntimeException {
 		inputOutputPane.add(new Label("Input File: "), 0, 0);
 		inputOutputPane.add(inputFilePath, 1, 0);
 		inputOutputPane.add(inputButton, 2, 0);
@@ -72,7 +66,7 @@ class AccountingCopyPane extends GridPane{
 		inputOutputPane.add(outputFilePath, 1, 1);
 		inputOutputPane.add(outputButton, 2, 1);
 		//make inputOutputPane horizontally resizable
-		for(javafx.scene.Node child:inputOutputPane.getChildren()){
+		for(Node child:inputOutputPane.getChildren()){
 			if (child instanceof TextField){
 				GridPane.setHgrow(child, Priority.ALWAYS);
 			}
@@ -104,10 +98,11 @@ class AccountingCopyPane extends GridPane{
 		outputButton.setOnAction((ActionEvent event) -> FileChooser(false));
 		copyButton.setOnAction((ActionEvent event) -> {
 			try{
-				copy();
+				copy(event);
 			} catch (XPathExpressionException | IOException | URISyntaxException | ParserConfigurationException | SAXException | TransformerException e) {
+				//throw an unchecked exception and log the underlying exception
 				LOGGER.log(Level.SEVERE, e.toString(), e);
-				abort();
+				abort(event);
 				throw new RuntimeException(e);
 			}
 		});
@@ -171,7 +166,8 @@ class AccountingCopyPane extends GridPane{
     }
 	
 	//listener method for copy button
-	private void copy() throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException{
+	private void copy(ActionEvent event) throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException{
+		
 		RadioButton selectedProcessingAction = (RadioButton)processingActionGroup.getSelectedToggle();
 		if (selectedProcessingAction != null)
 		{
@@ -194,7 +190,10 @@ class AccountingCopyPane extends GridPane{
 				copyMachine.setArgs("output", outputFilePath.getText());
 				int numCopiedXMLs = copyMachine.startCopying();
 				LOGGER.log(Level.INFO, "Program successfully copied " + numCopiedXMLs + " XMLs.");
-				System.exit(0);
+				Object sourceObject = event.getSource();
+				if (sourceObject instanceof Node){
+					((Node) sourceObject).getScene().getWindow().hide();
+				}	
 			}
 		} catch (FileNotFoundException e){
 			Alert alert = new Alert(AlertType.WARNING, "Files do not exist!");
@@ -203,7 +202,16 @@ class AccountingCopyPane extends GridPane{
 		}	
 	}
 	
-	private void abort(){
+	/**
+	 * calls the Copyable interface abortCopy method to clear temp files, etc. when application is closed due to an unhandled exception
+	 * @param event - event trigger
+	 */
+	private void abort(Event event){
 		copyMachine.abortCopy();
+		LOGGER.warning("Copying was aborted.");
+		Object sourceObject = event.getSource();
+		if (sourceObject instanceof Node){
+			((Node) sourceObject).getScene().getWindow().hide();
+		}	
 	}
 }
