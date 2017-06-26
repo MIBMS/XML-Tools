@@ -96,7 +96,8 @@ class CTTZip extends CopyableClass{
 			ByteArrayInputStream ruleIn = new ByteArrayInputStream(ruleOut.getValue().toByteArray());
 			//creates a new instance of the copying XML class to copy and modify each XML
 			LOGGER.info("Copying " + ruleOut.getKey() + "...");
-		    modRuleArray.put(ruleOut.getKey(), CTTXMLCopy.copyXML(ruleIn, args));
+			//creates a path - XML bytestream for each rule
+		    modRuleArray.put(ruleOut.getKey(), XMLCopy.copyXML(CTTXMLCopy.copyDoc(ruleIn, args), "<?xml version=\"1.0\"?>\n"));
 		} 
 			
 	return modRuleArray;

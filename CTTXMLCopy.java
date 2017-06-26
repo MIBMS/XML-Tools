@@ -44,21 +44,21 @@ class CTTXMLCopy{
 	
 	
 	/**
-	 * Copies a single XML
-	 * @param ruleMap
-	 * @return 
-	 * @throws IOException 
-	 * @throws SAXException 
-	 * @throws XPathExpressionException 
-	 * @throws TransformerException 
-	 * @throws ParserConfigurationException 
+	 * Copies XML document
+	 * @param ruleIn
+	 * @param args
+	 * @return
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws TransformerException
+	 * @throws ParserConfigurationException
 	 */
-	public static ByteArrayOutputStream copyXML(InputStream ruleIn, HashMap<String, String> args) 
+	public static Document copyDoc(InputStream ruleIn, HashMap<String, String> args) 
 			throws SAXException, IOException, XPathExpressionException, TransformerException, ParserConfigurationException{
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		XPath xPath = XPathFactory.newInstance().newXPath();
-		ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
 		
 		//parses the old document
 		Document doc = builder.parse(ruleIn);
@@ -81,29 +81,11 @@ class CTTXMLCopy{
 		
 		//call ModifyXML to modify the new XML document
 		modifyXML(newDoc, args);
-					
-		// write the content into Xml file
-		newDoc.setXmlStandalone(true);
-	    DOMSource source = new DOMSource(newDoc);
-	    try ( 
-	    		Writer writer = new OutputStreamWriter(byteOutput);
-	    		StringWriter strWriter = new StringWriter();
-	    	){
-	    	//add a custom xml declaration
-		    String customXML = "<?xml version=\"1.0\"?>\n";
-		    StreamResult result = new StreamResult(strWriter);
-
-		    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		    Transformer transformer = transformerFactory.newTransformer();
-		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-		    //remove normal XML declaration
-		    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		    transformer.transform(source, result);
-		    writer.write(customXML + strWriter.toString());
-	    }
-		return byteOutput;
+		
+		return newDoc;
 	}
+	
+	
 	
 	/**
 	 * Modifies a single XML
