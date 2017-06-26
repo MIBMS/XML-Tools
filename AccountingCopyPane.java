@@ -1,9 +1,10 @@
 package xmlTools;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,8 +30,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 /**
  * 
@@ -40,8 +39,6 @@ import javafx.stage.Stage;
 class AccountingCopyPane extends CopyPane{
 	private static final Logger LOGGER = Logger.getLogger( AccountingCopyPane.class.getName() );
 	
-	private final TextField inputFilePath = new TextField();
-	private final TextField outputFilePath = new TextField();
 	private final TextField addEntityName = new TextField();
 	private final TextField fromEntityName = new TextField();
 	private final TextField toEntityName = new TextField();
@@ -51,7 +48,6 @@ class AccountingCopyPane extends CopyPane{
 	private final RadioButton addEntityButton = new RadioButton("Add Entity");
 	private final RadioButton changeEntityButton = new RadioButton("Change Entity");
 	private final ToggleGroup processingActionGroup = new ToggleGroup();
-	private final FileChooser fileChooser = new FileChooser();
 	private GridPane inputOutputPane = new GridPane();
 	private HBox processingActionPane = new HBox(8);
 	private HBox processingActionSubPane = new HBox(8);
@@ -94,8 +90,8 @@ class AccountingCopyPane extends CopyPane{
         setAlignment(Pos.CENTER);
         
         //set button listeners
-		inputButton.setOnAction((ActionEvent event) -> FileChooser(true));	
-		outputButton.setOnAction((ActionEvent event) -> FileChooser(false));
+		inputButton.setOnAction((ActionEvent event) -> FileChooser(true, new ArrayList<String>(Arrays.asList("zip"))));	
+		outputButton.setOnAction((ActionEvent event) -> FileChooser(false, new ArrayList<String>(Arrays.asList("zip"))));
 		copyButton.setOnAction((ActionEvent event) -> {
 			try{
 				copy(event);
@@ -137,38 +133,9 @@ class AccountingCopyPane extends CopyPane{
 	}
 	
 	/**
-	 * listener method for buttons for browsing input/output files
-	 * @param input
+	 * listener method for copy button
 	 */
-	private void FileChooser(boolean input){
-		if (input) 
-		{
-			configureFileChooser(fileChooser, "Input File");
-			File file = fileChooser.showOpenDialog(new Stage());
-            if (file != null) {
-            	inputFilePath.setText(file.getAbsolutePath());
-            }
-		}
-		else
-		{	
-			configureFileChooser(fileChooser, "Output File");
-			File file = fileChooser.showSaveDialog(new Stage());
-            if (file != null) {
-            	outputFilePath.setText(file.getAbsolutePath());
-            }
-		}		
-	}
-	
-	private static void configureFileChooser(final FileChooser fileChooser, String title){
-		FileChooser.ExtensionFilter zipFilter = new FileChooser.ExtensionFilter("ZIP files (*.zip)", "*.zip");
-		fileChooser.getExtensionFilters().addAll(zipFilter);
-        fileChooser.setTitle(title);
-        fileChooser.setInitialDirectory(
-            new File(System.getProperty("user.dir"))
-        ); 
-    }
-	
-	//listener method for copy button
+	@Override
 	void copy(Event event) throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException{
 		
 		RadioButton selectedProcessingAction = (RadioButton)processingActionGroup.getSelectedToggle();
@@ -209,6 +176,7 @@ class AccountingCopyPane extends CopyPane{
 	 * calls the Copyable interface abortCopy method to clear temp files, etc. when application is closed due to an unhandled exception
 	 * @param event - event trigger
 	 */
+	@Override
 	void abort(Event event){
 		copyMachine.abortCopy();
 		LOGGER.warning("Copying was aborted.");
