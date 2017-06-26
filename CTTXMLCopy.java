@@ -25,6 +25,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -42,51 +43,6 @@ class CTTXMLCopy{
 	 */
 	private CTTXMLCopy() {}
 	
-	
-	/**
-	 * Copies XML document
-	 * @param ruleIn
-	 * @param args
-	 * @return
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws XPathExpressionException
-	 * @throws TransformerException
-	 * @throws ParserConfigurationException
-	 */
-	public static Document copyDoc(InputStream ruleIn, HashMap<String, String> args) 
-			throws SAXException, IOException, XPathExpressionException, TransformerException, ParserConfigurationException{
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		XPath xPath = XPathFactory.newInstance().newXPath();
-		
-		//parses the old document
-		Document doc = builder.parse(ruleIn);
-		
-		//creates a new doc
-		String newDocXmlDecl = "<MxML version=\"1-1\"></MxML>";
-		InputSource newDocSource = new InputSource(new StringReader(newDocXmlDecl));
-		Document newDoc = builder.parse(newDocSource);
-		
-		//copy XML structure
-		String xPathExp = "MxML";
-		NodeList nodeList = (NodeList) xPath.compile(xPathExp).evaluate(doc, XPathConstants.NODESET);
-		Node mxmlNode = nodeList.item(0);
-		NodeList level2Nodes = mxmlNode.getChildNodes();
-		for (int i = 0; i < level2Nodes.getLength(); i++) {
-			Node level2Node = level2Nodes.item(i);
-			Node newLevel2Node = newDoc.importNode(level2Node, true);
-			newDoc.getDocumentElement().appendChild(newLevel2Node);		
-		}
-		
-		//call ModifyXML to modify the new XML document
-		modifyXML(newDoc, args);
-		
-		return newDoc;
-	}
-	
-	
-	
 	/**
 	 * Modifies a single XML
 	 * @throws XPathExpressionException to CopyXML
@@ -94,7 +50,7 @@ class CTTXMLCopy{
 	 * @throws SAXException to CopyXML
 	 * @throws ParserConfigurationException 
 	 */
-	private static void modifyXML(Document newDoc, HashMap<String, String> args) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
+	static Document modifyXML(Document newDoc, HashMap<String, String> args) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
 		if (args.get("selection") != null){
 			switch (args.get("selection")){
 			case "Add Entity":
@@ -110,6 +66,7 @@ class CTTXMLCopy{
 				LOGGER.info("Nothing has been done to this XML.");
 			}
 		}
+		return newDoc;
 	}
 	
 

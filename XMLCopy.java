@@ -2,6 +2,7 @@ package xmlTools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -23,6 +24,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -38,6 +40,93 @@ class XMLCopy {
 	private static final Logger LOGGER = Logger.getLogger( XMLCopy.class.getName() );
 	
 	private XMLCopy(){}
+	
+	/**
+	 * Copies XML document
+	 * @param ruleIn
+	 * @param args
+	 * @return
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws TransformerException
+	 * @throws ParserConfigurationException
+	 */
+	public static Document copyDoc(InputStream ruleIn) 
+			throws SAXException, IOException, XPathExpressionException, TransformerException, ParserConfigurationException{
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		XPath xPath = XPathFactory.newInstance().newXPath();
+		
+		//parses the old document
+		Document doc = builder.parse(ruleIn);
+		Element rootElement = doc.getDocumentElement();
+		StringBuilder rootElementOpeningTag = new StringBuilder(rootElement.getTagName());
+		int numAttrs = rootElement.getAttributes().getLength();
+		for (int i = 0; i < numAttrs; i++){
+			Node attr = rootElement.getAttributes().item(i);
+			String attrName = attr.getNodeName();
+			String attrValue = attr.getNodeValue();
+			rootElementOpeningTag.append(" " + attrName + "=" + "\"" + attrValue + "\"");
+		}
+		rootElementOpeningTag.append(">").insert(0, "<");
+		
+		StringBuilder rootElementClosingTag = new StringBuilder(rootElement.getTagName()).append(">").insert(0, "</");
+		
+		//creates a new doc
+		String newDocXmlDecl = rootElementOpeningTag.append(rootElementClosingTag).toString();
+		InputSource newDocSource = new InputSource(new StringReader(newDocXmlDecl));
+		Document newDoc = builder.parse(newDocSource);
+		
+		//copy XML structure
+		String xPathExp = rootElement.getTagName();
+		NodeList nodeList = (NodeList) xPath.compile(xPathExp).evaluate(doc, XPathConstants.NODESET);
+		Node mxmlNode = nodeList.item(0);
+		NodeList level2Nodes = mxmlNode.getChildNodes();
+		for (int i = 0; i < level2Nodes.getLength(); i++) {
+			Node level2Node = level2Nodes.item(i);
+			Node newLevel2Node = newDoc.importNode(level2Node, true);
+			newDoc.getDocumentElement().appendChild(newLevel2Node);		
+		}
+		
+		return newDoc;
+	}
+	
+	/**
+	 * creates an ByteOutputStream representing an XML file from an XML document
+	 * @param newDoc
+	 * @return
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws TransformerException
+	 * @throws ParserConfigurationException
+	 */
+	static ByteArrayOutputStream copyXML(Document newDoc, String customXML) 
+			throws SAXException, IOException, XPathExpressionException, TransformerException, ParserConfigurationException{	
+		// write the content into Xml file
+		ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+		newDoc.setXmlStandalone(true);
+	    DOMSource source = new DOMSource(newDoc);
+	    try ( 
+	    		Writer writer = new OutputStreamWriter(byteOutput);
+	    		StringWriter strWriter = new StringWriter();
+	    	){
+	    	
+		    StreamResult result = new StreamResult(strWriter);
+
+		    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		    Transformer transformer = transformerFactory.newTransformer();
+		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		    //remove normal XML declaration
+		    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		    transformer.transform(source, result);
+		    //add a custom xml declaration
+		    writer.write(customXML + strWriter.toString());
+	    }
+		return byteOutput;
+	}
 	
 	/**
 	 * Adds a subtree at the first node with the given Xpath
@@ -108,39 +197,5 @@ class XMLCopy {
 		}  
 	}
 	
-	/**
-	 * creates an ByteOutputStream representing an XML file from an XML document
-	 * @param newDoc
-	 * @return
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws XPathExpressionException
-	 * @throws TransformerException
-	 * @throws ParserConfigurationException
-	 */
-	static ByteArrayOutputStream copyXML(Document newDoc, String customXML) 
-			throws SAXException, IOException, XPathExpressionException, TransformerException, ParserConfigurationException{	
-		// write the content into Xml file
-		ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-		newDoc.setXmlStandalone(true);
-	    DOMSource source = new DOMSource(newDoc);
-	    try ( 
-	    		Writer writer = new OutputStreamWriter(byteOutput);
-	    		StringWriter strWriter = new StringWriter();
-	    	){
-	    	
-		    StreamResult result = new StreamResult(strWriter);
-
-		    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		    Transformer transformer = transformerFactory.newTransformer();
-		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-		    //remove normal XML declaration
-		    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		    transformer.transform(source, result);
-		    //add a custom xml declaration
-		    writer.write(customXML + strWriter.toString());
-	    }
-		return byteOutput;
-	}
+	
 }

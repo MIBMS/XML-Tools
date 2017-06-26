@@ -1,6 +1,8 @@
 package xmlTools;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -14,6 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 class XMLObject extends CopyableClass {
@@ -45,14 +48,16 @@ class XMLObject extends CopyableClass {
 	@Override
 	public int startCopying() throws IOException, URISyntaxException, XPathExpressionException,
 			ParserConfigurationException, SAXException, TransformerException {
-		File inputZip = new File(args.get("input"));
+		File inputXML = new File(args.get("input"));
 		Path outputFolder = Paths.get(args.get("output"));
 		int j = 0;
 		for (int i = 0; i < Integer.parseInt(args.get("numCopies")); i++){
-			Path outputFilePath = Paths.get(outputFolder.toAbsolutePath().toString(), i + inputZip.getName());
+			Path outputFilePath = Paths.get(outputFolder.toAbsolutePath().toString(), i + inputXML.getName());
 			File outputFile = new File(outputFilePath.toAbsolutePath().toString());
 			try(FileOutputStream outputStream = new FileOutputStream(outputFile)){
-				
+				FileInputStream inputStream = new FileInputStream(inputXML);
+				ByteArrayOutputStream byteStream = XMLCopy.copyXML(modifyXML(XMLCopy.copyDoc(inputStream), args, String.valueOf(i)), "");
+				byteStream.writeTo(outputStream);
 			};
 			LOGGER.info("Created file " + Paths.get(".").toAbsolutePath().relativize(outputFilePath.toAbsolutePath()));
 			createdFiles.add(outputFile);
@@ -60,6 +65,22 @@ class XMLObject extends CopyableClass {
 		}
 		createdFiles.clear();
 		return j;
+	}
+	
+	/**
+	 * modify a given XPath
+	 * @param newDoc
+	 * @param args
+	 * @param toChange
+	 * @return
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws ParserConfigurationException
+	 */
+	private static Document modifyXML(Document newDoc, HashMap<String, String> args, String toChange) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
+		XMLCopy.changeTextNode(newDoc, args.get("xPath"), toChange);
+		return newDoc;
 	}
 
 }

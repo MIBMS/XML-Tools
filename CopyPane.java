@@ -25,6 +25,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -73,9 +74,7 @@ abstract class CopyPane extends BorderPane {
 		//put a TextArea in the middle
 		logArea.setEditable(false);
 		logArea.setWrapText(true);
-		ScrollPane logScrollPane = new ScrollPane(logArea);
-		logScrollPane.setPadding(new Insets(12));
-		setCenter(logScrollPane);
+		setCenter(logArea);
 		
 		//put the copy button at the bottom
 		HBox copyHBox = new HBox();
