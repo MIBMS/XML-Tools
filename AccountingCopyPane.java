@@ -14,13 +14,12 @@ import javax.xml.xpath.XPathExpressionException;
 import org.xml.sax.SAXException;
 
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -42,19 +41,17 @@ class AccountingCopyPane extends CopyPane{
 	private final TextField addEntityName = new TextField();
 	private final TextField fromEntityName = new TextField();
 	private final TextField toEntityName = new TextField();
-	private final Button inputButton = new Button("Browse");
-	private final Button outputButton = new Button("Browse");
-	private final Button copyButton = new Button("Copy");
 	private final RadioButton addEntityButton = new RadioButton("Add Entity");
 	private final RadioButton changeEntityButton = new RadioButton("Change Entity");
 	private final ToggleGroup processingActionGroup = new ToggleGroup();
 	private GridPane inputOutputPane = new GridPane();
 	private HBox processingActionPane = new HBox(8);
 	private HBox processingActionSubPane = new HBox(8);
+	private GridPane accountingPane = new GridPane();
 	
-	private Copyable copyMachine = new CTTZip();
-	
-	public AccountingCopyPane() throws RuntimeException {
+	public AccountingCopyPane() {
+		super(new ArrayList<String>(Arrays.asList("zip")));
+		copyObject = new CTTZip();
 		inputOutputPane.add(new Label("Input File: "), 0, 0);
 		inputOutputPane.add(inputFilePath, 1, 0);
 		inputOutputPane.add(inputButton, 2, 0);
@@ -67,7 +64,7 @@ class AccountingCopyPane extends CopyPane{
 				GridPane.setHgrow(child, Priority.ALWAYS);
 			}
 		}
-		add(inputOutputPane, 0, 0);
+		accountingPane.add(inputOutputPane, 0, 0);
 		
 		//radio buttons for type of processing to do on XML
 		
@@ -75,37 +72,24 @@ class AccountingCopyPane extends CopyPane{
 		changeEntityButton.setToggleGroup(processingActionGroup);
 		processingActionPane.getChildren().addAll(addEntityButton, changeEntityButton);
 		processingActionPane.setAlignment(Pos.CENTER);
-		add(processingActionPane, 0, 1);
+		accountingPane.add(processingActionPane, 0, 1);
 		
-		add(processingActionSubPane, 0, 2);
-		add(copyButton, 0, 3);
-        setHgap(6);
-        setVgap(6);
-        setHalignment(inputButton, HPos.RIGHT);
-        setHalignment(outputButton, HPos.RIGHT);
-        setHalignment(addEntityButton, HPos.RIGHT);
-        setHalignment(changeEntityButton, HPos.RIGHT);
-        setHalignment(copyButton, HPos.RIGHT);
-        //set Alignment of FileOpenPane
-        setAlignment(Pos.CENTER);
-        
-        //set button listeners
-		inputButton.setOnAction((ActionEvent event) -> FileChooser(true, new ArrayList<String>(Arrays.asList("zip"))));	
-		outputButton.setOnAction((ActionEvent event) -> FileChooser(false, new ArrayList<String>(Arrays.asList("zip"))));
-		copyButton.setOnAction((ActionEvent event) -> {
-			try{
-				copy(event);
-			} catch (XPathExpressionException | IOException | URISyntaxException | ParserConfigurationException | SAXException | TransformerException e) {
-				//throw an unchecked exception and log the underlying exception
-				LOGGER.log(Level.SEVERE, e.toString(), e);
-				abort(event);
-				throw new RuntimeException(e);
-			}
-		});
-	
-		//set RadioButton listener
+		accountingPane.add(processingActionSubPane, 0, 2);
+		accountingPane.setHgap(6);
+		accountingPane.setVgap(6);
+		GridPane.setHalignment(inputButton, HPos.RIGHT);
+		GridPane.setHalignment(outputButton, HPos.RIGHT);
+		GridPane.setHalignment(addEntityButton, HPos.RIGHT);
+		GridPane.setHalignment(changeEntityButton, HPos.RIGHT);
+        accountingPane.setAlignment(Pos.CENTER);
+        accountingPane.setPadding(new Insets(12));
+   	
+      	//set RadioButton listener
 		processingActionGroup.selectedToggleProperty().addListener((ObservableValue<? extends Toggle> ov,
 				Toggle old_toggle, Toggle new_toggle) -> changeProcessingActionSubPane(ov, old_toggle, new_toggle));
+		
+		//adds accountingPane to AccountingCopyPane
+		setTop(accountingPane);
 	}
 	
 	//listener method for processing action radio buttons
@@ -114,7 +98,7 @@ class AccountingCopyPane extends CopyPane{
 		RadioButton selectedRadioButton = (RadioButton)processingActionGroup.getSelectedToggle();
 		if (selectedRadioButton != null) 
 		{
-			this.getChildren().remove(processingActionSubPane);
+			accountingPane.getChildren().remove(processingActionSubPane);
 			processingActionSubPane = new HBox(8);
 			switch (selectedRadioButton.getText()){
 			case "Add Entity":
@@ -127,7 +111,7 @@ class AccountingCopyPane extends CopyPane{
 				break;
 			}
 			processingActionSubPane.setAlignment(Pos.CENTER);
-			this.add(processingActionSubPane, 0, 2);
+			accountingPane.add(processingActionSubPane, 0, 2);
 			selectedRadioButton.getScene().getWindow().sizeToScene();
 		}
 	}
@@ -143,27 +127,27 @@ class AccountingCopyPane extends CopyPane{
 		{
 			switch (selectedProcessingAction.getText()){
 			case "Add Entity":
-				copyMachine.setArgs("modify", "Tick Additional Entity");
-				copyMachine.setArgs("entity", addEntityName.getText());
+				copyObject.setArgs("modify", "Tick Additional Entity");
+				copyObject.setArgs("entity", addEntityName.getText());
 				break;
 			case "Change Entity":
-				copyMachine.setArgs("modify", "Tick A Different Entity");
-				copyMachine.setArgs("fromEntity", fromEntityName.getText());
-				copyMachine.setArgs("toEntity", toEntityName.getText());
+				copyObject.setArgs("modify", "Tick A Different Entity");
+				copyObject.setArgs("fromEntity", fromEntityName.getText());
+				copyObject.setArgs("toEntity", toEntityName.getText());
 				break;
 			}
 		}
 		try {
 			if(!inputFilePath.getText().equals("") && !outputFilePath.getText().equals("") )
 			{
-				copyMachine.setArgs("input", inputFilePath.getText());
-				copyMachine.setArgs("output", outputFilePath.getText());
-				int numCopiedXMLs = copyMachine.startCopying();
+				copyObject.setArgs("input", inputFilePath.getText());
+				copyObject.setArgs("output", outputFilePath.getText());
+				int numCopiedXMLs = copyObject.startCopying();
 				LOGGER.log(Level.INFO, "Program successfully copied " + numCopiedXMLs + " XMLs.");
-				Object sourceObject = event.getSource();
-				if (sourceObject instanceof Node){
-					((Node) sourceObject).getScene().getWindow().hide();
-				}	
+				//Object sourceObject = event.getSource();
+				//if (sourceObject instanceof Node){
+				//	((Node) sourceObject).getScene().getWindow().hide();
+				//}	
 			}
 		} catch (FileNotFoundException e){
 			Alert alert = new Alert(AlertType.WARNING, "Files do not exist!");
@@ -178,7 +162,7 @@ class AccountingCopyPane extends CopyPane{
 	 */
 	@Override
 	void abort(Event event){
-		copyMachine.abortCopy();
+		copyObject.abortCopy();
 		LOGGER.warning("Copying was aborted.");
 		Object sourceObject = event.getSource();
 		if (sourceObject instanceof Node){

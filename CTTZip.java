@@ -179,6 +179,7 @@ class CTTZip implements Copyable{
 			outputZip.delete();
 		}
 		createdFiles.add(outputZip);
+		int outputZipIndex = createdFiles.size() - 1;
 		Path outputZipPath = Paths.get(outputZip.getPath());
 		Map<String, String> env = new HashMap<String, String>();
 	    env.put("create", String.valueOf(Files.notExists(outputZipPath)));
@@ -228,6 +229,7 @@ class CTTZip implements Copyable{
 				cm201Zip.delete();
 			}
 			createdFiles.add(cm201Zip);
+			int cm201ZipIndex = createdFiles.size() - 1;
 			Path cm201ZipPath = Paths.get(cm201Zip.getPath());
 		    // use a Zip filesystem URI
 		    URI cm201Uri = cm201ZipPath.toUri(); // here
@@ -265,9 +267,10 @@ class CTTZip implements Copyable{
 			Files.createDirectories(cm201Path.getParent());
 		    Files.copy(cm201ZipPath, cm201Path);
 		    cm201Zip.delete();
+		    createdFiles.remove(cm201ZipIndex);
 	    }
 		//end test zip
-		
+		createdFiles.remove(outputZipIndex);
 
 	}
 	
