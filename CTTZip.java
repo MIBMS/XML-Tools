@@ -16,6 +16,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -35,8 +36,10 @@ import org.xml.sax.SAXException;
  */
 class CTTZip implements Copyable{
 	private static final Logger LOGGER = Logger.getLogger( CTTZip.class.getName() );
-	
 	final static int BUFFER_SIZE = 4096;
+	//stores created files for easy deletion during copy abortion
+	private static ArrayList<File> createdFiles = new ArrayList<>();
+	
 	private HashMap<String, String> args = new HashMap<String, String>();
 	
 	public CTTZip() {
@@ -59,14 +62,26 @@ class CTTZip implements Copyable{
 	}
 	
 	/**
-	 * sequence to be run when main program is aborted
+	 * instance method calls static method clearTemp to run abort sequence
+	 * instance method is used so we can implement the abstract method in the interface Copyable
 	 */
-	@Override
 	public void abortCopy(){
-		File cm201Zip = new File("tempcm201.zip");
-		if (cm201Zip.exists()){
-			cm201Zip.delete();
+		clearTemp();
+	}
+	
+	/**
+	 * Clears temporary files
+	 */
+	private static void clearTemp(){
+		for (int i = 0; i < createdFiles.size(); i++){
+			if (createdFiles.get(i).exists()){
+				createdFiles.get(i).delete();
+				LOGGER.info("Temporary file \"" 
+						+ Paths.get(".").toAbsolutePath().relativize(Paths.get(createdFiles.get(i).getPath()).toAbsolutePath()) 
+						+ "\" is deleted.");
+			}
 		}
+		createdFiles.clear();
 	}
 	
 	/**
@@ -129,7 +144,7 @@ class CTTZip implements Copyable{
 			}
 			zipIn.close();
 			
-			//open the cm201zip file and add all accounting rules to a Hashmap of filenames and file contents
+			//open the cm201zip file and add all accounting rules to a HashMap of filenames and file contents
 			
 			ZipInputStream cm201zip = new ZipInputStream(new ByteArrayInputStream(out.toByteArray()));
 			entry = null;
@@ -163,11 +178,12 @@ class CTTZip implements Copyable{
 		if (outputZip.exists()){
 			outputZip.delete();
 		}
+		createdFiles.add(outputZip);
 		Path outputZipPath = Paths.get(outputZip.getPath());
 		Map<String, String> env = new HashMap<String, String>();
 	    env.put("create", String.valueOf(Files.notExists(outputZipPath)));
 	    // use a Zip filesystem URI
-	    URI fileUri = outputZipPath.toUri(); // here
+	    URI fileUri = outputZipPath.toUri();
 	    URI zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getPath(), null);
 	    //System.out.println(zipUri);
 	    try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
@@ -188,8 +204,6 @@ class CTTZip implements Copyable{
 			while ((entry = zin.getNextEntry()) != null) {
 				boolean toBeDeleted = false;
 				Path entryPath = Paths.get(entry.getName());
-				//System.out.println(entryPath +  Boolean.toString(Files.isDirectory(entryPath)));
-				//System.out.println(entryPath +  Boolean.toString(entry.isDirectory()));
 				//copy everything but cm201
 				if (entryPath.getFileName().toString().equals("CM.201.zip") || entry.isDirectory()) {
 					toBeDeleted = true;
@@ -209,14 +223,11 @@ class CTTZip implements Copyable{
 			zin.close();
 			
 			//change cm201zip, add the new XMLs
-			//test inner zip
-			//Path cm201Path = zipfs.getPath("/static_data/CM.201.zip");
-			//Files.createDirectories(cm201Path.getParent());
-			//Files.createFile(cm201Path);
-			File cm201Zip = new File("tempcm201.zip");
+			File cm201Zip = new File("tempcm201.tmp");
 			if (cm201Zip.exists()){
 				cm201Zip.delete();
 			}
+			createdFiles.add(cm201Zip);
 			Path cm201ZipPath = Paths.get(cm201Zip.getPath());
 		    // use a Zip filesystem URI
 		    URI cm201Uri = cm201ZipPath.toUri(); // here
@@ -238,7 +249,6 @@ class CTTZip implements Copyable{
 						toBeDeleted = true;
 					}
 					if(!toBeDeleted){
-						//System.out.println(entryPath + Boolean.toString(Files.isDirectory(entryPath)));
 						addToTempFolder(cm201fs, "/", cm201zipInStream, entryPath);
 					}
 				}

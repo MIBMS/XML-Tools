@@ -37,7 +37,7 @@ import javafx.stage.Stage;
  * Create a custom Pane to display options for copying accounting rules
  *  
  */
-class AccountingCopyPane extends GridPane{
+class AccountingCopyPane extends CopyPane{
 	private static final Logger LOGGER = Logger.getLogger( AccountingCopyPane.class.getName() );
 	
 	private final TextField inputFilePath = new TextField();
@@ -136,7 +136,10 @@ class AccountingCopyPane extends GridPane{
 		}
 	}
 	
-	//listener method for input/output button
+	/**
+	 * listener method for buttons for browsing input/output files
+	 * @param input
+	 */
 	private void FileChooser(boolean input){
 		if (input) 
 		{
@@ -166,7 +169,7 @@ class AccountingCopyPane extends GridPane{
     }
 	
 	//listener method for copy button
-	private void copy(ActionEvent event) throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException{
+	void copy(Event event) throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException{
 		
 		RadioButton selectedProcessingAction = (RadioButton)processingActionGroup.getSelectedToggle();
 		if (selectedProcessingAction != null)
@@ -206,7 +209,7 @@ class AccountingCopyPane extends GridPane{
 	 * calls the Copyable interface abortCopy method to clear temp files, etc. when application is closed due to an unhandled exception
 	 * @param event - event trigger
 	 */
-	private void abort(Event event){
+	void abort(Event event){
 		copyMachine.abortCopy();
 		LOGGER.warning("Copying was aborted.");
 		Object sourceObject = event.getSource();

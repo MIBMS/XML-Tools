@@ -16,8 +16,7 @@ import org.xml.sax.SAXException;
  */
 
 interface Copyable{
-	int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException;
 	void abortCopy();
+	int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException;
 	void setArgs(String key, String value);
-	
 }
