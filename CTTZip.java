@@ -43,7 +43,7 @@ class CTTZip implements Copyable{
 	private HashMap<String, String> args = new HashMap<String, String>();
 	
 	public CTTZip() {
-		args.put("modify", "");
+		args.put("selection", "");
 	}
 	
 	/**
@@ -104,7 +104,7 @@ class CTTZip implements Copyable{
 			ByteArrayInputStream ruleIn = new ByteArrayInputStream(ruleOut.getValue().toByteArray());
 			//creates a new instance of the copying XML class to copy and modify each XML
 			LOGGER.info("Copying " + ruleOut.getKey() + "...");
-		    modRuleArray.put(ruleOut.getKey(), XMLModAndCopy.copyXML(ruleIn, args));
+		    modRuleArray.put(ruleOut.getKey(), CTTXMLCopy.copyXML(ruleIn, args));
 		} 
 			
 	return modRuleArray;

@@ -125,13 +125,14 @@ class AccountingCopyPane extends CopyPane{
 		RadioButton selectedProcessingAction = (RadioButton)processingActionGroup.getSelectedToggle();
 		if (selectedProcessingAction != null)
 		{
-			switch (selectedProcessingAction.getText()){
+			String selection = selectedProcessingAction.getText();
+			switch (selection){
 			case "Add Entity":
-				copyObject.setArgs("modify", "Tick Additional Entity");
+				copyObject.setArgs("selection", selection);
 				copyObject.setArgs("entity", addEntityName.getText());
 				break;
 			case "Change Entity":
-				copyObject.setArgs("modify", "Tick A Different Entity");
+				copyObject.setArgs("selection", selection);
 				copyObject.setArgs("fromEntity", fromEntityName.getText());
 				copyObject.setArgs("toEntity", toEntityName.getText());
 				break;
