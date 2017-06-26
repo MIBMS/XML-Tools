@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -28,6 +29,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -47,6 +49,11 @@ abstract class CopyPane extends BorderPane {
 	private TextArea logArea = new TextArea();
 	
 	CopyPane(){
+		GridPane.setHalignment(inputButton, HPos.RIGHT);
+		GridPane.setHalignment(outputButton, HPos.RIGHT);
+		inputFilePath.setPrefWidth(300);
+		outputFilePath.setPrefWidth(300);
+
 		//setPadding(new Insets(12));
 		//set directory chooser button listener
 		outputFolderButton.setOnAction((ActionEvent event) -> dirChooser());	 

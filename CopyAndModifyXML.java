@@ -17,6 +17,9 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -32,12 +35,12 @@ public class CopyAndModifyXML extends Application{
 	private static final Logger LOGGER = Logger.getLogger("");
 	private static final Logger LOGGERCOPYANDMODIFYXML = Logger.getLogger(CopyAndModifyXML.class.getName());
 	//if stop method was executed
-	CopyPane inputGridPane;
+	CopyPane accountingPane = new AccountingCopyPane();
+	CopyPane multiplePane = new MultipleCopyPane();
 	
 	@Override //Override start method in Application
 	public void start(final Stage stage){
-		inputGridPane = new AccountingCopyPane();
-		
+		//creates a lock to prevent multiple instances of this Application from running
 		if (lockInstance("CopyAndModifyXML.lock")){
 			try {
 				//remove all handlers from root logger
@@ -46,8 +49,10 @@ public class CopyAndModifyXML extends Application{
 				    LOGGER.removeHandler(handler);
 				}
 				//create StreamHandler for outputting to log area
-				Handler loggerConsoleHandler = inputGridPane.logToLogArea();
-				LOGGER.addHandler(loggerConsoleHandler);
+				Handler loggerAccountingHandler = accountingPane.logToLogArea();
+				LOGGER.addHandler(loggerAccountingHandler);
+				Handler loggerMultiHandler = multiplePane.logToLogArea();
+				LOGGER.addHandler(loggerMultiHandler);
 				//create FileHandler for outputting log to a file
 				Files.createDirectories(Paths.get("logs"));
 				FileHandler loggerFileHandler = new FileHandler("logs/CopyAndModifyXML-log.xml", 1024*1024, 1, true);
@@ -66,8 +71,15 @@ public class CopyAndModifyXML extends Application{
 		}
 		stage.setOnCloseRequest(e -> closeWindow(e));
 		
-		final Pane rootGroup = new VBox(12);
-	    rootGroup.getChildren().addAll(inputGridPane);
+		TabPane rootGroup = new TabPane();
+		Tab accountingTab = new Tab("Copy Accounting Rules");
+		accountingTab.setContent(accountingPane);
+		Tab multiTab = new Tab("Copy 1 XML into many");
+		multiTab.setContent(multiplePane);
+		
+		rootGroup.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+		
+	    rootGroup.getTabs().addAll(accountingTab, multiTab);
 	    //rootGroup.setPadding(new Insets(12, 12, 12, 12));
 	    
 	    stage.setScene(new Scene(rootGroup));
@@ -93,7 +105,7 @@ public class CopyAndModifyXML extends Application{
 	 */
 	public void closeWindow(WindowEvent e) {
 		e.consume();
-		inputGridPane.abort(e);
+		accountingPane.abort(e);
 		Platform.exit();
     }
 	

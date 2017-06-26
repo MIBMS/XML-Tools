@@ -34,25 +34,17 @@ import org.xml.sax.SAXException;
  * Unzips and rezips CTTs
  *
  */
-class CTTZip implements Copyable{
+class CTTZip extends CopyableClass{
 	private static final Logger LOGGER = Logger.getLogger( CTTZip.class.getName() );
 	final static int BUFFER_SIZE = 4096;
 	//stores created files for easy deletion during copy abortion
 	private static ArrayList<File> createdFiles = new ArrayList<>();
 	
-	private HashMap<String, String> args = new HashMap<String, String>();
-	
-	public CTTZip() {
+	CTTZip() {
 		args.put("selection", "");
 	}
 	
-	/**
-	 * Set arguments for the CopyAndModifyXML class, e.g. instructions for modification
-	 */
-	@Override
-	public void setArgs(String key, String value){
-		args.put(key, value);
-	}
+
 	
 	@Override
 	public int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException{

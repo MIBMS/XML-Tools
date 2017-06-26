@@ -49,7 +49,7 @@ class AccountingCopyPane extends CopyPane{
 	private HBox processingActionSubPane = new HBox(8);
 	private GridPane accountingPane = new GridPane();
 	
-	public AccountingCopyPane() {
+	AccountingCopyPane() {
 		super(new ArrayList<String>(Arrays.asList("zip")));
 		copyObject = new CTTZip();
 		inputOutputPane.add(new Label("Input File: "), 0, 0);
@@ -59,11 +59,11 @@ class AccountingCopyPane extends CopyPane{
 		inputOutputPane.add(outputFilePath, 1, 1);
 		inputOutputPane.add(outputButton, 2, 1);
 		//make inputOutputPane horizontally resizable
-		for(Node child:inputOutputPane.getChildren()){
+		/*for(Node child:inputOutputPane.getChildren()){
 			if (child instanceof TextField){
 				GridPane.setHgrow(child, Priority.ALWAYS);
 			}
-		}
+		}*/
 		accountingPane.add(inputOutputPane, 0, 0);
 		
 		//radio buttons for type of processing to do on XML
@@ -77,8 +77,6 @@ class AccountingCopyPane extends CopyPane{
 		accountingPane.add(processingActionSubPane, 0, 2);
 		accountingPane.setHgap(6);
 		accountingPane.setVgap(6);
-		GridPane.setHalignment(inputButton, HPos.RIGHT);
-		GridPane.setHalignment(outputButton, HPos.RIGHT);
 		GridPane.setHalignment(addEntityButton, HPos.RIGHT);
 		GridPane.setHalignment(changeEntityButton, HPos.RIGHT);
         accountingPane.setAlignment(Pos.CENTER);
@@ -112,6 +110,7 @@ class AccountingCopyPane extends CopyPane{
 			}
 			processingActionSubPane.setAlignment(Pos.CENTER);
 			accountingPane.add(processingActionSubPane, 0, 2);
+			inputOutputPane.setAlignment(Pos.CENTER);
 			selectedRadioButton.getScene().getWindow().sizeToScene();
 		}
 	}
