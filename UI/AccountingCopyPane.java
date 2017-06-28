@@ -1,4 +1,4 @@
-package xmlTools;
+package xmlTools.UI;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,13 +29,14 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import xmlTools.AccountingCTTZip.AccountingCTTZip;
 
 /**
  * 
  * Create a custom Pane to display options for copying accounting rules
  *  
  */
-class AccountingCopyPane extends CopyPane{
+public class AccountingCopyPane extends CopyPane{
 	private static final Logger LOGGER = Logger.getLogger( AccountingCopyPane.class.getName() );
 	
 	private final TextField addEntityName = new TextField();
@@ -49,9 +50,9 @@ class AccountingCopyPane extends CopyPane{
 	private HBox processingActionSubPane = new HBox(8);
 	private GridPane accountingPane = new GridPane();
 	
-	AccountingCopyPane() {
+	public AccountingCopyPane() {
 		super(new ArrayList<String>(Arrays.asList("zip")));
-		copyObject = new CTTZip();
+		copyObject = new AccountingCTTZip();
 		inputOutputPane.add(new Label("Input File: "), 0, 0);
 		inputOutputPane.add(inputFilePath, 1, 0);
 		inputOutputPane.add(inputButton, 2, 0);
@@ -153,20 +154,6 @@ class AccountingCopyPane extends CopyPane{
 			Alert alert = new Alert(AlertType.WARNING, "Files do not exist!");
 			LOGGER.log(Level.WARNING, e.toString(), e);
 			alert.showAndWait();
-		}	
-	}
-	
-	/**
-	 * calls the Copyable interface abortCopy method to clear temp files, etc. when application is closed due to an unhandled exception
-	 * @param event - event trigger
-	 */
-	@Override
-	void abort(Event event){
-		copyObject.abortCopy();
-		LOGGER.warning("Copying was aborted.");
-		Object sourceObject = event.getSource();
-		if (sourceObject instanceof Node){
-			((Node) sourceObject).getScene().getWindow().hide();
 		}	
 	}
 }

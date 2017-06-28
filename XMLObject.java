@@ -19,11 +19,11 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-class XMLObject extends CopyableClass {
+public class XMLObject extends Copyable {
 	private static final Logger LOGGER = Logger.getLogger( XMLObject.class.getName() );
 	private static ArrayList<File> createdFiles = new ArrayList<>();
 	
-	XMLObject(){}
+	public XMLObject(){}
 
 	@Override
 	public void abortCopy() {

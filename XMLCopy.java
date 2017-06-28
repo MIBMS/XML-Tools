@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
  */
 
 
-class XMLCopy {
+public class XMLCopy {
 	private static final Logger LOGGER = Logger.getLogger( XMLCopy.class.getName() );
 	
 	private XMLCopy(){}
@@ -102,7 +102,7 @@ class XMLCopy {
 	 * @throws TransformerException
 	 * @throws ParserConfigurationException
 	 */
-	static ByteArrayOutputStream copyXML(Document newDoc, String customXML) 
+	public static ByteArrayOutputStream copyXML(Document newDoc, String customXML) 
 			throws SAXException, IOException, XPathExpressionException, TransformerException, ParserConfigurationException{	
 		// write the content into Xml file
 		ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
@@ -139,7 +139,7 @@ class XMLCopy {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	static void addSubTree(Document newDoc, String xPathExp, String newSubTree) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException{
+	public static void addSubTree(Document newDoc, String xPathExp, String newSubTree) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException{
 		InputSource addUDFSource = new InputSource(new StringReader(newSubTree));
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
@@ -162,7 +162,7 @@ class XMLCopy {
 	 * @param toChange
 	 * @throws XPathExpressionException
 	 */
-	static void changeTextNode(Document doc, String xPathExp, String toChange) throws XPathExpressionException{
+	public static void changeTextNode(Document doc, String xPathExp, String toChange) throws XPathExpressionException{
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		NodeList nodeList = (NodeList) xPath.compile(xPathExp).evaluate(doc, XPathConstants.NODESET);
 		if (nodeList.getLength() == 0){
@@ -187,7 +187,7 @@ class XMLCopy {
 	 * @param xPathExp
 	 * @throws XPathExpressionException
 	 */
-	static void removeXPaths(Document doc, String xPathExp) throws XPathExpressionException{
+	public static void removeXPaths(Document doc, String xPathExp) throws XPathExpressionException{
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		NodeList nodeList = (NodeList) xPath.compile(xPathExp).evaluate(doc, XPathConstants.NODESET);
 		for (int i = 0; i < nodeList.getLength(); i++) {

@@ -16,13 +16,7 @@ import org.xml.sax.SAXException;
  *
  */
 
-interface Copyable{
-	void abortCopy();
-	int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException;
-	void setArgs(String key, String value);
-}
-
-abstract class CopyableClass implements Copyable{
+public abstract class Copyable {
 	protected HashMap<String, String> args = new HashMap<String, String>();
 	
 	public abstract void abortCopy();
@@ -30,7 +24,7 @@ abstract class CopyableClass implements Copyable{
 	/**
 	 * Set arguments for the CopyAndModifyXML class, e.g. instructions for modification
 	 */
-	@Override
+	
 	public void setArgs(String key, String value){
 		args.put(key, value);
 	};

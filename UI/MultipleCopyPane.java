@@ -1,4 +1,4 @@
-package xmlTools;
+package xmlTools.UI;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,18 +14,23 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.util.converter.IntegerStringConverter;
+import xmlTools.XMLObject;
 
-class MultipleCopyPane extends CopyPane {
+public class MultipleCopyPane extends CopyPane {
 	private static final Logger LOGGER = Logger.getLogger( MultipleCopyPane.class.getName() );
 	
 	private GridPane inputOutputPane = new GridPane();
@@ -33,8 +38,9 @@ class MultipleCopyPane extends CopyPane {
 	private GridPane multiplePane = new GridPane();
 	private TextField xPath = new TextField();
 	private TextField numCopies = new TextField();
+	private TextArea replaceText = new TextArea();
 	
-	MultipleCopyPane(){
+	public MultipleCopyPane(){
 		super(new ArrayList<String>(Arrays.asList("xml")));
 		copyObject = new XMLObject();
 		//creates the input output pane
@@ -47,12 +53,15 @@ class MultipleCopyPane extends CopyPane {
 		inputOutputPane.setAlignment(Pos.CENTER);
 		//creates Textfield pane for the xPath expression to modify
 		xPath.setPrefWidth(300);
-		numCopies.setPrefColumnCount(4);
+		numCopies.setPrefColumnCount(2);
 		numCopies.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));  
-		xPathPane.add(new Label("XPath: "), 0, 0);
-		xPathPane.add(xPath, 1, 0);
-		xPathPane.add(new Label("Number of Copies: "), 2, 0);
-		xPathPane.add(numCopies, 3, 0);
+		xPathPane.add(new Label("Number of Copies: "), 0, 0);
+		xPathPane.add(numCopies, 1, 0);
+		GridPane.setFillWidth(numCopies, false);
+		xPathPane.add(new Label("XPath: "), 0, 1);
+		xPathPane.add(xPath, 1, 1);
+		xPathPane.add(new Label("Replace text nodes with: "), 0, 2);
+		xPathPane.add(replaceText, 1, 2);
 		xPathPane.setAlignment(Pos.CENTER);
 		xPathPane.setHgap(12);
 		//creates the multiple pane for this tab
@@ -64,6 +73,19 @@ class MultipleCopyPane extends CopyPane {
 		multiplePane.setPadding(new Insets(12));
 		//adds multiplePane to MultipleCopyPane
 		setTop(multiplePane);
+		
+		//set listeners for the numCopies and Xpath textfields so only one can be editable
+		numCopies.textProperty().addListener(new ChangeListener<String>() {
+
+	        @Override
+	        public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+	           if(!t1.equals("")){
+	               xPath.setDisable(false);
+	               replaceText.setDisable(false);
+	           }
+	        }	           
+	    });
+		
 	}
 	
 	@Override
@@ -85,11 +107,4 @@ class MultipleCopyPane extends CopyPane {
 			alert.showAndWait();
 		}			
 	}
-
-	@Override
-	void abort(Event e) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

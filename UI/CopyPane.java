@@ -1,4 +1,4 @@
-package xmlTools;
+package xmlTools.UI;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +24,7 @@ import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
@@ -35,8 +36,9 @@ import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import xmlTools.Copyable;
 
-abstract class CopyPane extends BorderPane {
+public abstract class CopyPane extends BorderPane {
 	private static final Logger LOGGER = Logger.getLogger( CopyPane.class.getName() );
 	protected final TextField inputFilePath = new TextField();
 	protected final TextField outputFilePath = new TextField();
@@ -109,10 +111,17 @@ abstract class CopyPane extends BorderPane {
 	abstract void copy(Event e) throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException;
 	
 	/**
-	 * abort copying method to be implemented by subclasses
-	 * @param e
+	 * calls the Copyable interface abortCopy method to clear temp files, etc. when application is closed due to an unhandled exception
+	 * @param e - event trigger
 	 */
-	abstract void abort(Event e);
+	public void abort(Event e){
+		copyObject.abortCopy();
+		LOGGER.warning("Copying was aborted.");
+		Object sourceObject = e.getSource();
+		if (sourceObject instanceof Node){
+			((Node) sourceObject).getScene().getWindow().hide();
+		}	
+	};
 	
 	/**
 	 * listener method for buttons for browsing input/output files

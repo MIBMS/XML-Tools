@@ -1,4 +1,4 @@
-package xmlTools;
+package xmlTools.AccountingCTTZip;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,17 +31,19 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import xmlTools.XMLCopy;
+
 /**
  * Modifies and copies a single XML file
  */
-class CTTXMLCopy{
-	private static final Logger LOGGER = Logger.getLogger( CTTXMLCopy.class.getName() );
+class AccountingCTTXMLCopy{
+	private static final Logger LOGGER = Logger.getLogger( AccountingCTTXMLCopy.class.getName() );
 	
 	/**
 	 * private no-arg constructor - cannot be instantiated
 	 * @throws ParserConfigurationException
 	 */
-	private CTTXMLCopy() {}
+	private AccountingCTTXMLCopy() {}
 	
 	/**
 	 * Modifies a single XML

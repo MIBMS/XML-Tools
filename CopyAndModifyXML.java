@@ -25,6 +25,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import xmlTools.UI.AccountingCopyPane;
+import xmlTools.UI.CopyPane;
+import xmlTools.UI.MultipleCopyPane;
 
 /**
  * main class

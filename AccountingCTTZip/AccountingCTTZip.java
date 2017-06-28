@@ -1,4 +1,4 @@
-package xmlTools;
+package xmlTools.AccountingCTTZip;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -29,18 +29,22 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 
+import xmlTools.Copyable;
+import xmlTools.XMLCopy;
+import xmlTools.AccountingCTTZip.AccountingCTTXMLCopy;
+
 /**
  * 
  * Unzips and rezips CTTs
  *
  */
-class CTTZip extends CopyableClass{
-	private static final Logger LOGGER = Logger.getLogger( CTTZip.class.getName() );
+public class AccountingCTTZip extends Copyable{
+	private static final Logger LOGGER = Logger.getLogger( AccountingCTTZip.class.getName() );
 	final static int BUFFER_SIZE = 4096;
 	//stores created files for easy deletion during copy abortion
 	private static ArrayList<File> createdFiles = new ArrayList<>();
 	
-	CTTZip() {
+	public AccountingCTTZip() {
 		args.put("selection", "");
 	}
 	
@@ -97,7 +101,7 @@ class CTTZip extends CopyableClass{
 			//creates a new instance of the copying XML class to copy and modify each XML
 			LOGGER.info("Copying " + ruleOut.getKey() + "...");
 			//creates a path - XML bytestream for each rule
-		    modRuleArray.put(ruleOut.getKey(), XMLCopy.copyXML(CTTXMLCopy.modifyXML( 
+		    modRuleArray.put(ruleOut.getKey(), XMLCopy.copyXML(AccountingCTTXMLCopy.modifyXML( 
 		    		XMLCopy.copyDoc(ruleIn), args), "<?xml version=\"1.0\"?>\n"));
 		} 
 			
