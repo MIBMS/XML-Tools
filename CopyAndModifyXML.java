@@ -92,7 +92,7 @@ public class CopyAndModifyXML extends Application{
 		stage.setTitle("Copy XML files");
 		stage.getIcons().add(new Image(Paths.get(System.getProperty("user.dir")+"/Mewrex.jpg").toUri().toString()));
 		
-		stage.setHeight(500);
+		stage.setHeight(800);
 		stage.setWidth(800);
 		
 		stage.show();
