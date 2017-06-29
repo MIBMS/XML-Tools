@@ -2,7 +2,6 @@ package xmlTools;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -15,17 +14,8 @@ import org.xml.sax.SAXException;
  * Interface for copied objects
  *
  */
-
-public abstract class Copyable {
-	protected HashMap<String, String> args = new HashMap<String, String>();
-	
-	public abstract void abortCopy();
-	public abstract int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException;
-	/**
-	 * Set arguments for the CopyAndModifyXML class, e.g. instructions for modification
-	 */
-	
-	public void setArgs(String key, String value){
-		args.put(key, value);
-	};
+public interface Copyable {
+	void abortCopy();
+	int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException;
+	void setArgs(String key, String value);
 }

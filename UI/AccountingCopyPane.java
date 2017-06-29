@@ -18,18 +18,15 @@ import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import xmlTools.AccountingCTTZip.AccountingCTTZip;
 
 /**
@@ -40,11 +37,10 @@ import xmlTools.AccountingCTTZip.AccountingCTTZip;
 public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 	private static final Logger LOGGER = Logger.getLogger( AccountingCopyPane.class.getName() );
 	
-	private final TextArea addEntityName = new TextArea();
-	private final TextField fromEntityName = new TextField();
-	private final TextField toEntityName = new TextField();
-	private final RadioButton addEntityButton = new RadioButton("Add Entity");
-	private final RadioButton changeEntityButton = new RadioButton("Change Entity");
+	private final TextArea entitiesToCheck = new TextArea();
+	private final TextArea accountingSectionsToCheck = new TextArea();
+	private final RadioButton editEntitiesButton = new RadioButton("Edit entities");
+	private final RadioButton editAccountingSectionsButton = new RadioButton("Edit accounting sections");
 	private final ToggleGroup processingActionGroup = new ToggleGroup();
 	private GridPane inputOutputPane = new GridPane();
 	private HBox processingActionPane = new HBox(8);
@@ -65,18 +61,18 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 		
 		//radio buttons for type of processing to do on XML
 		
-		addEntityButton.setToggleGroup(processingActionGroup);
-		changeEntityButton.setToggleGroup(processingActionGroup);
+		editEntitiesButton.setToggleGroup(processingActionGroup);
+		editAccountingSectionsButton.setToggleGroup(processingActionGroup);
 		//changeEntityButton.setSelected(true);
-		processingActionPane.getChildren().addAll(addEntityButton, changeEntityButton);
+		processingActionPane.getChildren().addAll(editEntitiesButton, editAccountingSectionsButton);
 		processingActionPane.setAlignment(Pos.CENTER);
 		accountingPane.add(processingActionPane, 0, 1);
 		
 		accountingPane.add(processingActionSubPane, 0, 2);
 		accountingPane.setHgap(12);
 		accountingPane.setVgap(12);
-		GridPane.setHalignment(addEntityButton, HPos.RIGHT);
-		GridPane.setHalignment(changeEntityButton, HPos.RIGHT);
+		GridPane.setHalignment(editEntitiesButton, HPos.RIGHT);
+		GridPane.setHalignment(editAccountingSectionsButton, HPos.RIGHT);
         accountingPane.setAlignment(Pos.CENTER);
         accountingPane.setPadding(new Insets(12));
    	
@@ -97,12 +93,11 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 			accountingPane.getChildren().remove(processingActionSubPane);
 			processingActionSubPane = new HBox(8);
 			switch (selectedRadioButton.getText()){
-			case "Add Entity":
-				processingActionSubPane.getChildren().addAll(new Label("Entities to be ticked:"), addEntityName);
+			case "Edit entities":
+				processingActionSubPane.getChildren().addAll(new Label("Entities to check:"), entitiesToCheck);
 				break;
-			case "Change Entity":
-				processingActionSubPane.getChildren().addAll(new Label("Entity to uncheck: "), fromEntityName, 
-						new Label("Entity to check: "), toEntityName);
+			case "Edit accounting sections":
+				processingActionSubPane.getChildren().addAll(new Label("Accounting sections to check: "), accountingSectionsToCheck);
 				break;
 			}
 			processingActionSubPane.setAlignment(Pos.CENTER);
@@ -123,12 +118,11 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 			String selection = selectedProcessingAction.getText();
 			copyObject.setArgs("selection", selection);
 			switch (selection){
-			case "Add Entity":
-				copyObject.setArgs("entity", addEntityName.getText());
+			case "Edit entities":
+				copyObject.setArgs("entities", entitiesToCheck.getText());
 				break;
-			case "Change Entity":
-				copyObject.setArgs("fromEntity", fromEntityName.getText());
-				copyObject.setArgs("toEntity", toEntityName.getText());
+			case "Edit accounting sections":
+				copyObject.setArgs("accountingSections", accountingSectionsToCheck.getText());
 				break;
 			}
 		}

@@ -26,8 +26,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -36,15 +34,16 @@ import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import xmlTools.CopyClass;
 import xmlTools.Copyable;
 
-public abstract class CopyPane<E extends Copyable> extends BorderPane {
+public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	private static final Logger LOGGER = Logger.getLogger( CopyPane.class.getName() );
 	protected final TextField inputFilePath = new TextField();
 	protected final TextField outputFilePath = new TextField();
 	protected final FileChooser fileChooser = new FileChooser();
 	protected final DirectoryChooser dirChooser = new DirectoryChooser();
-	protected E copyObject;
+	protected Copyable copyObject;
 	protected final Button copyButton = new Button("Copy");
 	protected final Button inputButton = new Button("Browse");
 	protected final Button outputButton = new Button("Browse");

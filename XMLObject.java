@@ -10,7 +10,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
@@ -21,7 +20,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-public class XMLObject extends Copyable {
+public class XMLObject extends CopyClass {
 	private static final Logger LOGGER = Logger.getLogger( XMLObject.class.getName() );
 	private static ArrayList<File> createdFiles = new ArrayList<>();
 	private File inputXML;

@@ -21,10 +21,9 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import xmlTools.AccountingCTTZip.AccountingCTTZip;
 import xmlTools.UI.AccountingCopyPane;
 import xmlTools.UI.CopyPane;
 import xmlTools.UI.MultipleCopyPane;
@@ -38,8 +37,8 @@ public class CopyAndModifyXML extends Application{
 	private static final Logger LOGGER = Logger.getLogger("");
 	private static final Logger LOGGERCOPYANDMODIFYXML = Logger.getLogger(CopyAndModifyXML.class.getName());
 	//if stop method was executed
-	CopyPane accountingPane = new AccountingCopyPane();
-	CopyPane multiplePane = new MultipleCopyPane();
+	CopyPane<AccountingCTTZip> accountingPane = new AccountingCopyPane();
+	CopyPane<XMLObject> multiplePane = new MultipleCopyPane();
 	
 	@Override //Override start method in Application
 	public void start(final Stage stage){

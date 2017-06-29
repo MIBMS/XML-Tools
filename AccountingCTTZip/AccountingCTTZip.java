@@ -29,7 +29,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 
-import xmlTools.Copyable;
+import xmlTools.CopyClass;
 import xmlTools.XMLCopy;
 import xmlTools.AccountingCTTZip.AccountingCTTXMLCopy;
 
@@ -38,7 +38,7 @@ import xmlTools.AccountingCTTZip.AccountingCTTXMLCopy;
  * Unzips and rezips CTTs
  *
  */
-public class AccountingCTTZip extends Copyable{
+public class AccountingCTTZip extends CopyClass{
 	private static final Logger LOGGER = Logger.getLogger( AccountingCTTZip.class.getName() );
 	final static int BUFFER_SIZE = 4096;
 	//stores created files for easy deletion during copy abortion
