@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -43,12 +44,15 @@ public class AccountingCTTZip extends CopyClass{
 	private static final Logger LOGGER = Logger.getLogger( AccountingCTTZip.class.getName() );
 	final static int BUFFER_SIZE = 4096;
 	//stores created files for easy deletion during copy abortion
-	private static ArrayList<File> createdFiles = new ArrayList<>();
+	private static List<File> createdFiles = new ArrayList<>();
 	//stores number of start copying methods started
 	public static int copiesInProgress = 0;
 	
+	
 	public AccountingCTTZip() {
-		initArgs(new ArrayList<String>(Arrays.asList("entitiesSelected", "sectionsSelected", "input", "output", "entities", "accountingSections")));
+		initArgs(new ArrayList<String>(Arrays.asList("entitiesSelected", "sectionsSelected", "input", 
+				"output", "entities", "accountingSections", "miscSelected", "udfLabel", "subTree")));
+		setExtensions(new ArrayList<String>(Arrays.asList("zip")));
 	}
 	
 

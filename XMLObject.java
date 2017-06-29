@@ -35,6 +35,7 @@ public class XMLObject extends CopyClass {
 	
 	public XMLObject(){
 		initArgs(new ArrayList<String>(Arrays.asList("selection", "input", "output", "numCopies", "xPath", "replaceText")));
+		setExtensions(new ArrayList<String>(Arrays.asList("xml")));
 	}
 
 	@Override

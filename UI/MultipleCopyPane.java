@@ -3,8 +3,6 @@ package xmlTools.UI;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,8 +46,8 @@ public class MultipleCopyPane extends CopyPane<XMLObject> {
 	private GridPane processingActionSubPane = new GridPane();
 	
 	public MultipleCopyPane(){
-		super(new ArrayList<String>(Arrays.asList("xml")));
 		copyObject = new XMLObject();
+		setExtensions();
 		//creates the input output pane
 		inputOutputPane.add(new Label("Input File: "), 0, 0);
 		inputOutputPane.add(inputFilePath, 1, 0);

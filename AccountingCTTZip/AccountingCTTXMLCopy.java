@@ -42,6 +42,10 @@ class AccountingCTTXMLCopy{
 			editAccountingSections(newDoc, map);
 			modified = true;
 		}
+		if (map.get("miscSelected").equals("true")){
+			editMisc(newDoc, map);
+			modified = true;
+		}
 		if (!modified) LOGGER.info("Nothing has been done to this XML.");
 		return newDoc;
 	}
@@ -90,6 +94,12 @@ class AccountingCTTXMLCopy{
 				}
 			}
 		}		
+	}
+	
+	private static void editMisc(Document newDoc, Map<String, String> map) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
+		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField[fieldLabel=\""
+				+ map.get("udfLabel") + "\"]");
+		XMLCopy.addSubTree(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE", map.get("subTree"));	
 	}
 		
 	private static String addMainEntity(String entity){

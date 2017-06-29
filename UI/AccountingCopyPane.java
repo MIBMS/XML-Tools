@@ -3,8 +3,6 @@ package xmlTools.UI;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,6 +18,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.GridPane;
@@ -35,17 +34,21 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 	
 	private final TextArea entitiesToCheck = new TextArea();
 	private final TextArea accountingSectionsToCheck = new TextArea();
+	private final TextField udfLabel = new TextField();
+	private final TextField subTree = new TextField();
 	private final CheckBox editEntitiesButton = new CheckBox("Edit entities");
 	private final CheckBox editAccountingSectionsButton = new CheckBox("Edit accounting sections");
+	private final CheckBox editMiscButton = new CheckBox("Edit miscellaneous rule user defined fields");
 	private GridPane inputOutputPane = new GridPane();
 	private GridPane processingActionPane = new GridPane();
 	private GridPane editEntitiesPane = new GridPane();
 	private GridPane editSectionsPane = new GridPane();
+	private GridPane editMiscPane = new GridPane();
 	private GridPane accountingPane = new GridPane();
 	
 	public AccountingCopyPane() {
-		super(new ArrayList<String>(Arrays.asList("zip")));
 		copyObject = new AccountingCTTZip();
+		setExtensions();
 		inputOutputPane.add(new Label("Input File: "), 0, 0);
 		inputOutputPane.add(inputFilePath, 1, 0);
 		inputOutputPane.add(inputButton, 2, 0);
@@ -68,6 +71,15 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 		editSectionsPane.add(accountingSectionsToCheck, 0, 2);
 		accountingSectionsToCheck.maxWidthProperty().bind(this.widthProperty());
 		
+		editMiscPane.add(editMiscButton, 0, 0);
+		editMiscPane.add(new Label("Label of UDF to edit:"), 0, 1);
+		udfLabel.setPrefWidth(500);
+		subTree.setPrefWidth(500);
+		editMiscPane.add(udfLabel, 1, 1);
+		editMiscPane.add(new Label("Subtree to add: "), 0, 2);
+		editMiscPane.add(subTree, 1, 2);
+		editMiscPane.setAlignment(Pos.TOP_LEFT);
+		
 		inputOutputPane.setAlignment(Pos.CENTER);
 		editEntitiesPane.setAlignment(Pos.CENTER);
 		editEntitiesPane.setHgap(12);
@@ -78,11 +90,13 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 		processingActionPane.add(editEntitiesPane, 0, 0);
 		processingActionPane.add(editSectionsPane, 1, 0);
 		processingActionPane.setAlignment(Pos.CENTER);
-		processingActionPane.setHgap(12);
-		processingActionPane.setVgap(12);
-		
+		processingActionPane.setHgap(8);
+		processingActionPane.setVgap(8);
+		editMiscPane.setHgap(8);
+		editMiscPane.setVgap(8);
 	
 		accountingPane.add(processingActionPane, 0, 1);
+		accountingPane.add(editMiscPane, 0, 2);
 		
 
 		accountingPane.setHgap(12);
@@ -110,6 +124,11 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 		if (editAccountingSectionsButton.isSelected()){
 			copyObject.setArgs("sectionsSelected", "true");
 			copyObject.setArgs("accountingSections", accountingSectionsToCheck.getText());
+		}
+		if (editMiscButton.isSelected()){
+			copyObject.setArgs("miscSelected", "true");
+			copyObject.setArgs("udfLabel", udfLabel.getText());
+			copyObject.setArgs("subTree", subTree.getText());
 		}
 		try {
 			if(!inputFilePath.getText().equals("") && !outputFilePath.getText().equals("") )

@@ -14,6 +14,9 @@ import javax.xml.xpath.XPathExpressionException;
 import org.xml.sax.SAXException;
 
 public abstract class CopyClass implements Copyable{
+	//list of extensions supported by Copy Object
+	private List<String> extensions;
+	
 	/**
 	 * create a "map" inner class that has an immutable key list but a mutable value list
 	 *
@@ -89,6 +92,14 @@ public abstract class CopyClass implements Copyable{
 	
 	public Map<String, String> getArgsMap(){
 		return argsMap.getArgsMap();
+	}
+	
+	protected void setExtensions(List<String> extensions){
+		this.extensions = extensions;
+	}
+	
+	public List<String> getExtensions(){
+		return extensions;
 	}
 	
 	public abstract void abortCopy();

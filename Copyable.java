@@ -2,6 +2,7 @@ package xmlTools;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -19,4 +20,5 @@ public interface Copyable {
 	int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException;
 	void setArgs(String key, String value);
 	int copiesInProgress();
+	List<String> getExtensions();
 }

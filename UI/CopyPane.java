@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -87,13 +87,11 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	}
 	
 	/**
-	 * constructs a CopyPane that can input and output files with the given extensions
-	 * @param extensions 
+	 * sets extensions
 	 */
-	CopyPane(ArrayList<String> extensions){
-		this();
-		//set input/output button listeners
-      	inputButton.setOnAction((ActionEvent event) -> fileChooser(true, extensions));	
+	void setExtensions(){
+		List<String> extensions = copyObject.getExtensions();
+		inputButton.setOnAction((ActionEvent event) -> fileChooser(true, extensions));	
       	outputButton.setOnAction((ActionEvent event) -> fileChooser(false, extensions));
 	}
 	
@@ -128,7 +126,7 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	 * listener method for buttons for browsing input/output files
 	 * @param input
 	 */
-	protected void fileChooser(boolean input, ArrayList<String> extensions) {
+	protected void fileChooser(boolean input, List<String> extensions) {
 		if (input) 
 		{
 			configureFileChooser(fileChooser, "Input File", extensions);
@@ -166,7 +164,7 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	 * @param title
 	 * @param extensions extensions that can be chosen in the File Open/Save dialog
 	 */
-	private static void configureFileChooser(final FileChooser fileChooser, String title, ArrayList<String> extensions) {
+	private static void configureFileChooser(final FileChooser fileChooser, String title, List<String> extensions) {
 		//removes all extension filters (lest we have a bug where the list keeps growing)
 		fileChooser.getExtensionFilters().clear();
 		for (String extension: extensions){
