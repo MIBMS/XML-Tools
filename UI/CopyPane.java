@@ -64,7 +64,7 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 		copyButton.setOnAction((ActionEvent event) -> {
 			try{
 				copy(event);
-			} catch (XPathExpressionException | IOException | URISyntaxException | ParserConfigurationException | SAXException | TransformerException e) {
+			} catch (RuntimeException | XPathExpressionException | IOException | URISyntaxException | ParserConfigurationException | SAXException | TransformerException e) {
 				//throw an unchecked exception and log the underlying exception
 				LOGGER.log(Level.SEVERE, e.toString(), e);
 				abort(event);
@@ -114,8 +114,10 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	 * @param e - event trigger
 	 */
 	public void abort(Event e){
-		copyObject.abortCopy();
-		LOGGER.warning("Copying was aborted.");
+		if (copyObject.copiesInProgress() > 0){
+			copyObject.abortCopy();
+			LOGGER.warning("Copying was aborted.");
+		}	
 		Object sourceObject = e.getSource();
 		if (sourceObject instanceof Node){
 			((Node) sourceObject).getScene().getWindow().hide();

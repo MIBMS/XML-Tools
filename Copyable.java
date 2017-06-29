@@ -18,4 +18,5 @@ public interface Copyable {
 	void abortCopy();
 	int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException;
 	void setArgs(String key, String value);
+	int copiesInProgress();
 }

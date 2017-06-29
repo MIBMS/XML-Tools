@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -43,18 +44,29 @@ public class AccountingCTTZip extends CopyClass{
 	final static int BUFFER_SIZE = 4096;
 	//stores created files for easy deletion during copy abortion
 	private static ArrayList<File> createdFiles = new ArrayList<>();
+	//stores number of start copying methods started
+	public static int copiesInProgress = 0;
 	
 	public AccountingCTTZip() {
-		args.put("selection", "");
+		initArgs(new ArrayList<String>(Arrays.asList("selection", "input", "output", "entities", "accountingSections")));
 	}
 	
 
 	
 	@Override
 	public int startCopying() throws IOException, URISyntaxException, XPathExpressionException, ParserConfigurationException, SAXException, TransformerException{
+		//increments number of copies in progress
+		copiesInProgress++;
 		HashMap<Path, ByteArrayOutputStream> copiedXMLs;
-		rezipFile(copiedXMLs = processingXMLs(unzipFile(), args));
-		return copiedXMLs.size();
+		rezipFile(copiedXMLs = processingXMLs(unzipFile()));
+		//decrements number of copies in progress
+		copiesInProgress--;
+		return copiedXMLs.size();	
+	}
+	
+	@Override
+	public int copiesInProgress(){
+		return copiesInProgress;
 	}
 	
 	/**
@@ -90,8 +102,7 @@ public class AccountingCTTZip extends CopyClass{
 	 * @throws SAXException 
 	 * @throws XPathExpressionException 
 	 */
-	private HashMap<Path, ByteArrayOutputStream> processingXMLs(HashMap<Path, ByteArrayOutputStream> ruleMap, 
-			HashMap<String, String> args) throws ParserConfigurationException, XPathExpressionException, SAXException, IOException, TransformerException{
+	private HashMap<Path, ByteArrayOutputStream> processingXMLs(HashMap<Path, ByteArrayOutputStream> ruleMap) throws ParserConfigurationException, XPathExpressionException, SAXException, IOException, TransformerException{
 		//modified rule map	
 		HashMap<Path, ByteArrayOutputStream> modRuleArray = new HashMap<Path, ByteArrayOutputStream>();
 				
@@ -102,7 +113,7 @@ public class AccountingCTTZip extends CopyClass{
 			LOGGER.info("Copying " + ruleOut.getKey() + "...");
 			//creates a path - XML bytestream for each rule
 		    modRuleArray.put(ruleOut.getKey(), XMLCopy.copyXML(AccountingCTTXMLCopy.modifyXML( 
-		    		XMLCopy.copyDoc(ruleIn), args), "<?xml version=\"1.0\"?>\n"));
+		    		XMLCopy.copyDoc(ruleIn), getArgsMap()), "<?xml version=\"1.0\"?>\n"));
 		} 
 			
 	return modRuleArray;
@@ -116,13 +127,13 @@ public class AccountingCTTZip extends CopyClass{
 	 */
 	private HashMap<Path, ByteArrayOutputStream> unzipFile() throws IOException{
 		HashMap<Path, ByteArrayOutputStream> ruleArray = new HashMap<Path, ByteArrayOutputStream>();
-			File inputZip = new File(args.get("input"));
+			File inputZip = new File(getArgs("input"));
 			ZipInputStream zipIn = null;
 			if (!inputZip.exists() || !inputZip.canRead()){
-				throw new FileNotFoundException("Cannot find/read input file " + args.get("input") + ".");
+				throw new FileNotFoundException("Cannot find/read input file " + getArgs("input") + ".");
 			}
 			else{
-				zipIn = new ZipInputStream(new FileInputStream(args.get("input")));
+				zipIn = new ZipInputStream(new FileInputStream(getArgs("input")));
 			}
 			
 			ZipEntry entry = null;
@@ -172,7 +183,7 @@ public class AccountingCTTZip extends CopyClass{
 		final int BUFFER_SIZE = 4096;
 		ZipInputStream zin = null;
 		//test zip
-		File outputZip = new File(args.get("output"));
+		File outputZip = new File(getArgs("output"));
 		if (outputZip.exists()){
 			outputZip.delete();
 		}
@@ -187,14 +198,14 @@ public class AccountingCTTZip extends CopyClass{
 	    //System.out.println(zipUri);
 	    try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
 	    	LOGGER.info("Recreating the zip with the copied rules...");
-			if (!(new File(args.get("input"))).exists() || !(new File(args.get("input"))).canRead()){
-				throw new FileNotFoundException("Cannot find/read input file " + args.get("input") + ".");
+			if (!(new File(getArgs("input"))).exists() || !(new File(getArgs("input"))).canRead()){
+				throw new FileNotFoundException("Cannot find/read input file " + getArgs("input") + ".");
 			}
-			else if(((new File(args.get("output"))).exists() && !(new File(args.get("output"))).canWrite())){
-				throw new FileNotFoundException("Cannot write to output file " + args.get("output") + ".");
+			else if(((new File(getArgs("output"))).exists() && !(new File(getArgs("output"))).canWrite())){
+				throw new FileNotFoundException("Cannot write to output file " + getArgs("output") + ".");
 			}
 			else{
-				zin = new ZipInputStream(new FileInputStream(args.get("input")));
+				zin = new ZipInputStream(new FileInputStream(getArgs("input")));
 			}
 			ByteArrayOutputStream cm201zip = new ByteArrayOutputStream();
 			//open outer zip

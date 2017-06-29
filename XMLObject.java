@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
@@ -29,8 +30,12 @@ public class XMLObject extends CopyClass {
 	private int numCopies;
 	private String xPath;
 	private String replaceText;
+	//stores number of start copying methods started
+	public static int copiesInProgress = 0;
 	
-	public XMLObject(){}
+	public XMLObject(){
+		initArgs(new ArrayList<String>(Arrays.asList("selection", "input", "output", "numCopies", "xPath", "replaceText")));
+	}
 
 	@Override
 	public void abortCopy() {
@@ -55,19 +60,21 @@ public class XMLObject extends CopyClass {
 	@Override
 	public int startCopying() throws IOException, URISyntaxException, XPathExpressionException,
 			ParserConfigurationException, SAXException, TransformerException {
-		inputXML = new File(args.get("input"));
-		outputFolder = Paths.get(args.get("output"));
-		selection = args.get("selection");
-		xPath = args.get("xPath");
+		//increments number of copies in progress
+		copiesInProgress++;
+		inputXML = new File(getArgs("input"));
+		outputFolder = Paths.get(getArgs("output"));
+		selection = getArgs("selection");
+		xPath = getArgs("xPath");
 		System.out.println(xPath);
-		replaceText = args.get("replaceText");
+		replaceText = getArgs("replaceText");
 		int j = 0;
 		
 		if (selection != null){
-			switch (args.get("selection")){
+			switch (getArgs("selection")){
 			case "Make multiple copies":
 				try{
-					numCopies = Integer.parseInt(args.get("numCopies"));
+					numCopies = Integer.parseInt(getArgs("numCopies"));
 				}
 				catch (NumberFormatException e){
 					LOGGER.warning("Could not parse number of copies. Defaulted to 0 copies");
@@ -82,7 +89,14 @@ public class XMLObject extends CopyClass {
 				LOGGER.info("Nothing has been done to this XML.");
 			}
 		}
+		//decrements number of copies in progress
+		copiesInProgress--;
 		return j;
+	}
+	
+	@Override
+	public int copiesInProgress(){
+		return copiesInProgress;
 	}
 	
 	/**

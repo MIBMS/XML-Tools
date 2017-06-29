@@ -112,6 +112,7 @@ public class CopyAndModifyXML extends Application{
 	public void closeWindow(WindowEvent e) {
 		e.consume();
 		accountingPane.abort(e);
+		multiplePane.abort(e);
 		Platform.exit();
     }
 	

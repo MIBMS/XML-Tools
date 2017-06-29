@@ -40,8 +40,6 @@ class AccountingCTTXMLCopy{
 				break;
 			case "Edit accounting sections":
 				editAccountingSections(newDoc, args);
-				//XMLCopy.changeTextNode(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField[fieldValue=\""
-						//+ args.get("accountingSections") + "\" and fieldLabel=\"TrnEntity\"]/fieldValue", args.get("toEntity"));
 				break;
 			default:
 				LOGGER.info("Nothing has been done to this XML.");
