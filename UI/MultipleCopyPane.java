@@ -34,7 +34,7 @@ import javafx.scene.layout.HBox;
 import javafx.util.converter.IntegerStringConverter;
 import xmlTools.XMLObject;
 
-public class MultipleCopyPane extends CopyPane {
+public class MultipleCopyPane extends CopyPane<XMLObject> {
 	private static final Logger LOGGER = Logger.getLogger( MultipleCopyPane.class.getName() );
 	
 	private GridPane inputOutputPane = new GridPane();
@@ -84,18 +84,7 @@ public class MultipleCopyPane extends CopyPane {
 		//adds multiplePane to MultipleCopyPane
 		setTop(multiplePane);
 		
-		//set listeners for the numCopies and Xpath textfields so only one can be editable
-		numCopies.textProperty().addListener(new ChangeListener<String>() {
 
-	        @Override
-	        public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-	           if(!t1.equals("")){
-	               xPath.setDisable(false);
-	               replaceText.setDisable(false);
-	           }
-	        }	           
-	    });
-		
 	}
 	
 	//listener method for processing action radio buttons

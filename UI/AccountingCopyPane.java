@@ -23,6 +23,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Alert.AlertType;
@@ -36,10 +37,10 @@ import xmlTools.AccountingCTTZip.AccountingCTTZip;
  * Create a custom Pane to display options for copying accounting rules
  *  
  */
-public class AccountingCopyPane extends CopyPane{
+public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 	private static final Logger LOGGER = Logger.getLogger( AccountingCopyPane.class.getName() );
 	
-	private final TextField addEntityName = new TextField();
+	private final TextArea addEntityName = new TextArea();
 	private final TextField fromEntityName = new TextField();
 	private final TextField toEntityName = new TextField();
 	private final RadioButton addEntityButton = new RadioButton("Add Entity");
@@ -97,7 +98,7 @@ public class AccountingCopyPane extends CopyPane{
 			processingActionSubPane = new HBox(8);
 			switch (selectedRadioButton.getText()){
 			case "Add Entity":
-				processingActionSubPane.getChildren().addAll(new Label("Entity to be ticked:"), addEntityName);
+				processingActionSubPane.getChildren().addAll(new Label("Entities to be ticked:"), addEntityName);
 				break;
 			case "Change Entity":
 				processingActionSubPane.getChildren().addAll(new Label("Entity to uncheck: "), fromEntityName, 

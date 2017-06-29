@@ -38,13 +38,13 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import xmlTools.Copyable;
 
-public abstract class CopyPane extends BorderPane {
+public abstract class CopyPane<E extends Copyable> extends BorderPane {
 	private static final Logger LOGGER = Logger.getLogger( CopyPane.class.getName() );
 	protected final TextField inputFilePath = new TextField();
 	protected final TextField outputFilePath = new TextField();
 	protected final FileChooser fileChooser = new FileChooser();
 	protected final DirectoryChooser dirChooser = new DirectoryChooser();
-	protected Copyable copyObject;
+	protected E copyObject;
 	protected final Button copyButton = new Button("Copy");
 	protected final Button inputButton = new Button("Browse");
 	protected final Button outputButton = new Button("Browse");

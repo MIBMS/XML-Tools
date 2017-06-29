@@ -194,7 +194,20 @@ public class XMLCopy {
 			Node udfNode = nodeList.item(i);
 			udfNode.getParentNode().removeChild(udfNode);
 			LOGGER.info("Removed " + xPathExp);
-		}  
+		} 
+		if (nodeList.getLength() == 0) LOGGER.info("Removed no node as there are none matching XPath" + xPathExp);
+	}
+	
+	/**
+	 * Checks if there are existing nodes with the given XPath
+	 * @param doc
+	 * @param xPathExp
+	 * @throws XPathExpressionException
+	 */
+	public static int checkXPath(Document doc, String xPathExp) throws XPathExpressionException{
+		XPath xPath = XPathFactory.newInstance().newXPath();
+		NodeList nodeList = (NodeList) xPath.compile(xPathExp).evaluate(doc, XPathConstants.NODESET);
+		return nodeList.getLength();
 	}
 	
 	

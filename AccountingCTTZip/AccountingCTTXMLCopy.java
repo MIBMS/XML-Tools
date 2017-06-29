@@ -24,6 +24,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import java.util.Scanner;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -56,9 +58,7 @@ class AccountingCTTXMLCopy{
 		if (args.get("selection") != null){
 			switch (args.get("selection")){
 			case "Add Entity":
-				XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField"
-						+ "[fieldLabel=\"FilterDetails\"]");
-				XMLCopy.addSubTree(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE", addAdditionalEntity(args.get("entity")));
+				editEntities(newDoc, args);
 				break;
 			case "Change Entity":
 				XMLCopy.changeTextNode(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField[fieldValue=\""
@@ -71,8 +71,41 @@ class AccountingCTTXMLCopy{
 		return newDoc;
 	}
 	
-
+	private static void editEntities(Document newDoc, HashMap<String, String> args) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
+		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField[fieldLabel=\"TrnEntity\"]");
+		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField/mxAccountingIRULE_FilterDetails/"
+				+ "mxAccountingIRULE_FILTER_DETAIL[userDefinedField[fieldLabel=\"FieldType\"]/fieldValue=\"0\"]");
+		try(Scanner scanner = new Scanner(args.get("entity"))){
+			if (scanner.hasNextLine()){
+				String firstEntity = scanner.nextLine();
+				XMLCopy.addSubTree(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE", addMainEntity(firstEntity));
+			}
+			
+			while (scanner.hasNextLine()) {
+				String additionalEntity = scanner.nextLine();
+				if (XMLCopy.checkXPath(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField/mxAccountingIRULE_FilterDetails") == 0){
+					XMLCopy.addSubTree(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE", addAdditionalEntity(additionalEntity));
+				}
+				else{
+					XMLCopy.addSubTree(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField/mxAccountingIRULE_FilterDetails", addMoreAdditionalEntities(additionalEntity));
+				}
+			}
+		}		
+	}
 		
+	private static String addMainEntity(String entity){
+		//add the additional entity into the document
+		
+		String additionalEntity = ""
+				+ "<userDefinedField>"
+				+ "<fieldLabel>TrnEntity</fieldLabel>"
+				+ "<fieldValue>" + entity + "</fieldValue>"
+				+ "<fieldType>character</fieldType>"
+				+ "</userDefinedField>";
+		return additionalEntity;
+
+	}
+	
 	
 	private static String addAdditionalEntity(String entity){
 		//add the additional entity into the document
@@ -98,6 +131,29 @@ class AccountingCTTXMLCopy{
 				+ "</mxAccountingIRULE_FILTER_DETAIL>"
 				+ "</mxAccountingIRULE_FilterDetails>"
 				+ "</userDefinedField>";
+		return additionalEntity;
+
+	}
+	
+	private static String addMoreAdditionalEntities(String entity){
+		//add the additional entity into the document
+		
+		String additionalEntity = ""
+				+ "<mxAccountingIRULE_FILTER_DETAIL>"
+				+ "<businessObjectId mefClass=\"mxAccountingIRULE_FILTER_DETAIL\">"
+				+ "<primarySystem>MX</primarySystem>"
+				+ "</businessObjectId>"
+				+ "<userDefinedField>"
+				+ "<fieldLabel>FieldType</fieldLabel>"
+				+ "<fieldValue>0</fieldValue>"
+				+ "<fieldType>integer</fieldType>"
+				+ "</userDefinedField>"
+				+ "<userDefinedField>"
+				+ "<fieldLabel>FieldValue</fieldLabel>"
+				+ "<fieldValue>" + entity + "</fieldValue>"
+				+ "<fieldType>character</fieldType>"
+				+ "</userDefinedField>"
+				+ "</mxAccountingIRULE_FILTER_DETAIL>";
 		return additionalEntity;
 
 	}
