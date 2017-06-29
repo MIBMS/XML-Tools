@@ -39,8 +39,8 @@ public abstract class CopyClass implements Copyable{
 			}
 		}
 		
-		private HashMap<K,V> getArgsMap(){
-			return (HashMap<K, V>) Collections.unmodifiableMap(args);
+		private Map<K,V> getArgsMap(){
+			return Collections.unmodifiableMap(args);
 		}
 		
 		/**
@@ -87,7 +87,7 @@ public abstract class CopyClass implements Copyable{
 		return argsMap.get(key);
 	}
 	
-	public HashMap<String, String> getArgsMap(){
+	public Map<String, String> getArgsMap(){
 		return argsMap.getArgsMap();
 	}
 	

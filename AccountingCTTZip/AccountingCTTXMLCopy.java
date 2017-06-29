@@ -1,7 +1,7 @@
 package xmlTools.AccountingCTTZip;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,27 +32,25 @@ class AccountingCTTXMLCopy{
 	 * @throws SAXException to CopyXML
 	 * @throws ParserConfigurationException 
 	 */
-	static Document modifyXML(Document newDoc, HashMap<String, String> args) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
-		if (args.get("selection") != null){
-			switch (args.get("selection")){
-			case "Edit entities":
-				editEntities(newDoc, args);
-				break;
-			case "Edit accounting sections":
-				editAccountingSections(newDoc, args);
-				break;
-			default:
-				LOGGER.info("Nothing has been done to this XML.");
-			}
+	static Document modifyXML(Document newDoc, Map<String, String> map) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
+		boolean modified = false;
+		if (map.get("entitiesSelected").equals("true")){
+			editEntities(newDoc, map);
+			modified = true;
 		}
+		if (map.get("sectionsSelected").equals("true")){
+			editAccountingSections(newDoc, map);
+			modified = true;
+		}
+		if (!modified) LOGGER.info("Nothing has been done to this XML.");
 		return newDoc;
 	}
 	
-	private static void editEntities(Document newDoc, HashMap<String, String> args) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
+	private static void editEntities(Document newDoc, Map<String, String> map) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
 		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField[fieldLabel=\"TrnEntity\"]");
 		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField/mxAccountingIRULE_FilterDetails/"
 				+ "mxAccountingIRULE_FILTER_DETAIL[userDefinedField[fieldLabel=\"FieldType\"]/fieldValue=\"0\"]");
-		try(Scanner scanner = new Scanner(args.get("entities"))){
+		try(Scanner scanner = new Scanner(map.get("entities"))){
 			if (scanner.hasNextLine()){
 				String firstEntity = scanner.nextLine();
 				XMLCopy.addSubTree(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE", addMainEntity(firstEntity));
@@ -71,11 +69,11 @@ class AccountingCTTXMLCopy{
 		}		
 	}
 	
-	private static void editAccountingSections(Document newDoc, HashMap<String, String> args) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
+	private static void editAccountingSections(Document newDoc, Map<String, String> map) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
 		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField[fieldLabel=\"TrnSection\"]");
 		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField/mxAccountingIRULE_FilterDetails/"
 				+ "mxAccountingIRULE_FILTER_DETAIL[userDefinedField[fieldLabel=\"FieldType\"]/fieldValue=\"1\"]");
-		try(Scanner scanner = new Scanner(args.get("accountingSections"))){
+		try(Scanner scanner = new Scanner(map.get("accountingSections"))){
 			if (scanner.hasNextLine()){
 				String firstSection = scanner.nextLine();
 				XMLCopy.addSubTree(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE", addMainSection(firstSection));

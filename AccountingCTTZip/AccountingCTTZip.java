@@ -48,7 +48,7 @@ public class AccountingCTTZip extends CopyClass{
 	public static int copiesInProgress = 0;
 	
 	public AccountingCTTZip() {
-		initArgs(new ArrayList<String>(Arrays.asList("selection", "input", "output", "entities", "accountingSections")));
+		initArgs(new ArrayList<String>(Arrays.asList("entitiesSelected", "sectionsSelected", "input", "output", "entities", "accountingSections")));
 	}
 	
 

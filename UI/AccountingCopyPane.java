@@ -13,20 +13,16 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 
-import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import xmlTools.AccountingCTTZip.AccountingCTTZip;
 
 /**
@@ -39,12 +35,12 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 	
 	private final TextArea entitiesToCheck = new TextArea();
 	private final TextArea accountingSectionsToCheck = new TextArea();
-	private final RadioButton editEntitiesButton = new RadioButton("Edit entities");
-	private final RadioButton editAccountingSectionsButton = new RadioButton("Edit accounting sections");
-	private final ToggleGroup processingActionGroup = new ToggleGroup();
+	private final CheckBox editEntitiesButton = new CheckBox("Edit entities");
+	private final CheckBox editAccountingSectionsButton = new CheckBox("Edit accounting sections");
 	private GridPane inputOutputPane = new GridPane();
-	private HBox processingActionPane = new HBox(8);
-	private HBox processingActionSubPane = new HBox(8);
+	private GridPane processingActionPane = new GridPane();
+	private GridPane editEntitiesPane = new GridPane();
+	private GridPane editSectionsPane = new GridPane();
 	private GridPane accountingPane = new GridPane();
 	
 	public AccountingCopyPane() {
@@ -61,70 +57,59 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 		
 		//radio buttons for type of processing to do on XML
 		
-		editEntitiesButton.setToggleGroup(processingActionGroup);
-		editAccountingSectionsButton.setToggleGroup(processingActionGroup);
 		//changeEntityButton.setSelected(true);
-		processingActionPane.getChildren().addAll(editEntitiesButton, editAccountingSectionsButton);
+		editEntitiesPane.add(editEntitiesButton, 0, 0);
+		editEntitiesPane.add(new Label("Entities to check: "), 0, 1);
+		editEntitiesPane.add(entitiesToCheck, 0, 2);
+		entitiesToCheck.maxWidthProperty().bind(this.widthProperty());
+		
+		editSectionsPane.add(editAccountingSectionsButton, 0, 0);
+		editSectionsPane.add(new Label("Accounting sections to check: "), 0, 1);
+		editSectionsPane.add(accountingSectionsToCheck, 0, 2);
+		accountingSectionsToCheck.maxWidthProperty().bind(this.widthProperty());
+		
+		inputOutputPane.setAlignment(Pos.CENTER);
+		editEntitiesPane.setAlignment(Pos.CENTER);
+		editEntitiesPane.setHgap(12);
+		editEntitiesPane.setVgap(12);
+		editSectionsPane.setAlignment(Pos.CENTER);
+		editSectionsPane.setHgap(12);
+		editSectionsPane.setVgap(12);
+		processingActionPane.add(editEntitiesPane, 0, 0);
+		processingActionPane.add(editSectionsPane, 1, 0);
 		processingActionPane.setAlignment(Pos.CENTER);
+		processingActionPane.setHgap(12);
+		processingActionPane.setVgap(12);
+		
+	
 		accountingPane.add(processingActionPane, 0, 1);
 		
-		accountingPane.add(processingActionSubPane, 0, 2);
+
 		accountingPane.setHgap(12);
 		accountingPane.setVgap(12);
-		GridPane.setHalignment(editEntitiesButton, HPos.RIGHT);
-		GridPane.setHalignment(editAccountingSectionsButton, HPos.RIGHT);
+		GridPane.setHalignment(editEntitiesButton, HPos.LEFT);
+		GridPane.setHalignment(editAccountingSectionsButton, HPos.LEFT);
         accountingPane.setAlignment(Pos.CENTER);
         accountingPane.setPadding(new Insets(12));
    	
-      	//set RadioButton listener
-		processingActionGroup.selectedToggleProperty().addListener((ObservableValue<? extends Toggle> ov,
-				Toggle old_toggle, Toggle new_toggle) -> changeProcessingActionSubPane(ov, old_toggle, new_toggle));
 		
 		//adds accountingPane to AccountingCopyPane
 		setTop(accountingPane);
 	}
 	
-	//listener method for processing action radio buttons
-	private void changeProcessingActionSubPane(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle)
-	{
-		RadioButton selectedRadioButton = (RadioButton)processingActionGroup.getSelectedToggle();
-		if (selectedRadioButton != null) 
-		{
-			accountingPane.getChildren().remove(processingActionSubPane);
-			processingActionSubPane = new HBox(8);
-			switch (selectedRadioButton.getText()){
-			case "Edit entities":
-				processingActionSubPane.getChildren().addAll(new Label("Entities to check:"), entitiesToCheck);
-				break;
-			case "Edit accounting sections":
-				processingActionSubPane.getChildren().addAll(new Label("Accounting sections to check: "), accountingSectionsToCheck);
-				break;
-			}
-			processingActionSubPane.setAlignment(Pos.CENTER);
-			accountingPane.add(processingActionSubPane, 0, 2);
-			inputOutputPane.setAlignment(Pos.CENTER);
-		}
-	}
-	
+
 	/**
 	 * listener method for copy button
 	 */
 	@Override
 	void copy(Event event) throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException{
-		
-		RadioButton selectedProcessingAction = (RadioButton)processingActionGroup.getSelectedToggle();
-		if (selectedProcessingAction != null)
-		{
-			String selection = selectedProcessingAction.getText();
-			copyObject.setArgs("selection", selection);
-			switch (selection){
-			case "Edit entities":
-				copyObject.setArgs("entities", entitiesToCheck.getText());
-				break;
-			case "Edit accounting sections":
-				copyObject.setArgs("accountingSections", accountingSectionsToCheck.getText());
-				break;
-			}
+		if (editEntitiesButton.isSelected()){
+			copyObject.setArgs("entitiesSelected", "true");
+			copyObject.setArgs("entities", entitiesToCheck.getText());
+		}
+		if (editAccountingSectionsButton.isSelected()){
+			copyObject.setArgs("sectionsSelected", "true");
+			copyObject.setArgs("accountingSections", accountingSectionsToCheck.getText());
 		}
 		try {
 			if(!inputFilePath.getText().equals("") && !outputFilePath.getText().equals("") )
