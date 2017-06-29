@@ -59,25 +59,21 @@ public class AccountingCopyPane extends CopyPane{
 		inputOutputPane.add(new Label("Output File: "), 0, 1);
 		inputOutputPane.add(outputFilePath, 1, 1);
 		inputOutputPane.add(outputButton, 2, 1);
-		//make inputOutputPane horizontally resizable
-		/*for(Node child:inputOutputPane.getChildren()){
-			if (child instanceof TextField){
-				GridPane.setHgrow(child, Priority.ALWAYS);
-			}
-		}*/
+
 		accountingPane.add(inputOutputPane, 0, 0);
 		
 		//radio buttons for type of processing to do on XML
 		
 		addEntityButton.setToggleGroup(processingActionGroup);
 		changeEntityButton.setToggleGroup(processingActionGroup);
+		//changeEntityButton.setSelected(true);
 		processingActionPane.getChildren().addAll(addEntityButton, changeEntityButton);
 		processingActionPane.setAlignment(Pos.CENTER);
 		accountingPane.add(processingActionPane, 0, 1);
 		
 		accountingPane.add(processingActionSubPane, 0, 2);
-		accountingPane.setHgap(6);
-		accountingPane.setVgap(6);
+		accountingPane.setHgap(12);
+		accountingPane.setVgap(12);
 		GridPane.setHalignment(addEntityButton, HPos.RIGHT);
 		GridPane.setHalignment(changeEntityButton, HPos.RIGHT);
         accountingPane.setAlignment(Pos.CENTER);
@@ -102,7 +98,6 @@ public class AccountingCopyPane extends CopyPane{
 			switch (selectedRadioButton.getText()){
 			case "Add Entity":
 				processingActionSubPane.getChildren().addAll(new Label("Entity to be ticked:"), addEntityName);
-				processingActionSubPane.setAlignment(Pos.CENTER);
 				break;
 			case "Change Entity":
 				processingActionSubPane.getChildren().addAll(new Label("Entity to uncheck: "), fromEntityName, 
@@ -112,7 +107,6 @@ public class AccountingCopyPane extends CopyPane{
 			processingActionSubPane.setAlignment(Pos.CENTER);
 			accountingPane.add(processingActionSubPane, 0, 2);
 			inputOutputPane.setAlignment(Pos.CENTER);
-			selectedRadioButton.getScene().getWindow().sizeToScene();
 		}
 	}
 	
@@ -126,13 +120,12 @@ public class AccountingCopyPane extends CopyPane{
 		if (selectedProcessingAction != null)
 		{
 			String selection = selectedProcessingAction.getText();
+			copyObject.setArgs("selection", selection);
 			switch (selection){
 			case "Add Entity":
-				copyObject.setArgs("selection", selection);
 				copyObject.setArgs("entity", addEntityName.getText());
 				break;
 			case "Change Entity":
-				copyObject.setArgs("selection", selection);
 				copyObject.setArgs("fromEntity", fromEntityName.getText());
 				copyObject.setArgs("toEntity", toEntityName.getText());
 				break;
@@ -145,10 +138,7 @@ public class AccountingCopyPane extends CopyPane{
 				copyObject.setArgs("output", outputFilePath.getText());
 				int numCopiedXMLs = copyObject.startCopying();
 				LOGGER.log(Level.INFO, "Program successfully copied " + numCopiedXMLs + " XMLs.");
-				//Object sourceObject = event.getSource();
-				//if (sourceObject instanceof Node){
-				//	((Node) sourceObject).getScene().getWindow().hide();
-				//}	
+
 			}
 		} catch (FileNotFoundException e){
 			Alert alert = new Alert(AlertType.WARNING, "Files do not exist!");
