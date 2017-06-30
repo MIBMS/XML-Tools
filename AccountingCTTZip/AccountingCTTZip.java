@@ -36,9 +36,7 @@ import xmlTools.XMLCopy;
 import xmlTools.AccountingCTTZip.AccountingCTTXMLCopy;
 
 /**
- * 
  * Unzips and rezips CTTs
- *
  */
 public class AccountingCTTZip extends CopyClass{
 	private static final Logger LOGGER = Logger.getLogger( AccountingCTTZip.class.getName() );
@@ -48,7 +46,9 @@ public class AccountingCTTZip extends CopyClass{
 	//stores number of start copying methods started
 	public static int copiesInProgress = 0;
 	
-	
+	/**
+	 * Creates an object representing an accounting CTT zip
+	 */
 	public AccountingCTTZip() {
 		initArgs(new ArrayList<String>(Arrays.asList("entitiesSelected", "sectionsSelected", "input", 
 				"output", "entities", "accountingSections", "miscSelected", "udfLabel", "subTree")));
@@ -73,16 +73,14 @@ public class AccountingCTTZip extends CopyClass{
 		return copiesInProgress;
 	}
 	
-	/**
-	 * instance method calls static method clearTemp to run abort sequence
-	 * instance method is used so we can implement the abstract method in the interface Copyable
-	 */
+	
+	@Override
 	public void abortCopy(){
 		clearTemp();
 	}
 	
 	/**
-	 * Clears temporary files
+	 * Clears temporary files created during copying if program unexpected terminates due to a handled exception
 	 */
 	private static void clearTemp(){
 		for (int i = 0; i < createdFiles.size(); i++){
@@ -98,8 +96,8 @@ public class AccountingCTTZip extends CopyClass{
 	
 	/**
 	 * Processes XMLs by passing each single XML to XMLModAndCopy
-	 * @param ruleMap
-	 * @return
+	 * @param ruleMap a HashMap of the path to the rule in the original CTT zip and the contents of each file
+	 * @return a HashMap of the path to the rule in the CTT zip, and the modified contents
 	 * @throws ParserConfigurationException 
 	 * @throws TransformerException 
 	 * @throws IOException 
@@ -126,7 +124,7 @@ public class AccountingCTTZip extends CopyClass{
 	
 	/**
 	 * unzips a zipped file to get accounting rules
-	 * @return
+	 * @return a HashMap of a path to each accounting rule and the contents in a byte output stream
 	 * @throws IOException 
 	 */
 	private HashMap<Path, ByteArrayOutputStream> unzipFile() throws IOException{
@@ -143,7 +141,6 @@ public class AccountingCTTZip extends CopyClass{
 			ZipEntry entry = null;
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			while ((entry = zipIn.getNextEntry()) != null) {
-				//System.out.println(entry.getName());
 			    if (entry.getName().equals("static_data/CM.201.zip")) {
 			    	BufferedOutputStream bos = new BufferedOutputStream(out);
 			        byte[] buffer = new byte[BUFFER_SIZE];
@@ -179,14 +176,13 @@ public class AccountingCTTZip extends CopyClass{
 	
 	/**
 	 * recreates the Zip
-	 * @param toBeZippedFiles
+	 * @param toBeZippedFiles a Hashmap of the path to each accounting rule and the contents in a byte stream
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
 	private void rezipFile(HashMap<Path, ByteArrayOutputStream> toBeZippedFiles) throws IOException, URISyntaxException{
 		final int BUFFER_SIZE = 4096;
 		ZipInputStream zin = null;
-		//test zip
 		File outputZip = new File(getArgs("output"));
 		if (outputZip.exists()){
 			outputZip.delete();
@@ -199,7 +195,6 @@ public class AccountingCTTZip extends CopyClass{
 	    // use a Zip filesystem URI
 	    URI fileUri = outputZipPath.toUri();
 	    URI zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getPath(), null);
-	    //System.out.println(zipUri);
 	    try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
 	    	LOGGER.info("Recreating the zip with the copied rules...");
 			if (!(new File(getArgs("input"))).exists() || !(new File(getArgs("input"))).canRead()){
@@ -245,7 +240,7 @@ public class AccountingCTTZip extends CopyClass{
 			int cm201ZipIndex = createdFiles.size() - 1;
 			Path cm201ZipPath = Paths.get(cm201Zip.getPath());
 		    // use a Zip filesystem URI
-		    URI cm201Uri = cm201ZipPath.toUri(); // here
+		    URI cm201Uri = cm201ZipPath.toUri(); 
 		    URI cm201zipUri = new URI("jar:" + cm201Uri.getScheme(), cm201Uri.getPath(), null);
 			Map<String, String> env2 = new HashMap<String, String>();
 		    env2.put("create", String.valueOf(Files.notExists(cm201ZipPath)));
@@ -287,21 +282,17 @@ public class AccountingCTTZip extends CopyClass{
 
 	}
 	
-
-	
 	
 	/**
 	 * Helper method to add the files to a zip FS
-	 * @param zipfs
-	 * @param directoryPath
-	 * @param inputStream
-	 * @param entryPath
+	 * @param zipfs the FileSystem representation of the zip file 
+	 * @param directoryPath the parent directory of the zip entry in the zip FS
+	 * @param inputStream the zip entry as an input stream
+	 * @param entryPath the name of the zip entry
 	 * @throws IOException
 	 */
 	private void addToTempFolder(FileSystem zipfs, String directoryPath, InputStream inputStream, Path entryPath) throws IOException{
-		//System.out.println(entryPath +  Boolean.toString(Files.isDirectory(entryPath)));
 		Path internalTargetPath = zipfs.getPath(directoryPath + "/" + entryPath.toString());
-		//System.out.println(internalTargetPath);
 		Files.createDirectories(internalTargetPath.getParent());
 		OutputStream fileOut = Files.newOutputStream(internalTargetPath);
 		byte[] buffer = new byte[BUFFER_SIZE];

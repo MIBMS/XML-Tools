@@ -37,6 +37,9 @@ import javafx.stage.Stage;
 import xmlTools.CopyClass;
 import xmlTools.Copyable;
 
+/**
+ * Creates a BorderPane instance that supports copying of the generic CopyClass subtype E
+ */
 public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	private static final Logger LOGGER = Logger.getLogger( CopyPane.class.getName() );
 	protected final TextField inputFilePath = new TextField();
@@ -50,13 +53,16 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	protected final Button outputFolderButton = new Button("Browse");
 	private TextArea logArea = new TextArea();
 	
+	/**
+	 * Creates a CopyPane instance
+	 * Defines the actions for the common output folder and copy buttons
+	 */
 	CopyPane(){
 		GridPane.setHalignment(inputButton, HPos.RIGHT);
 		GridPane.setHalignment(outputButton, HPos.RIGHT);
 		inputFilePath.setPrefWidth(300);
 		outputFilePath.setPrefWidth(300);
 
-		//setPadding(new Insets(12));
 		//set directory chooser button listener
 		outputFolderButton.setOnAction((ActionEvent event) -> dirChooser());	 
 		
@@ -87,7 +93,7 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	}
 	
 	/**
-	 * sets extensions
+	 * sets extensions that can be filtered in the FileChooser for this CopyPane
 	 */
 	void setExtensions(){
 		List<String> extensions = copyObject.getExtensions();
@@ -96,8 +102,9 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	}
 	
 	/**
-	 * copy method to be implemented by subclasses
-	 * @param e
+	 * Event handler method that is triggered upon copy button clicks
+	 * Calls the Copyable object's startCopying method
+	 * @param e Event that triggers the copy button action
 	 * @throws XPathExpressionException
 	 * @throws IOException
 	 * @throws URISyntaxException
@@ -108,8 +115,8 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	abstract void copy(Event e) throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException;
 	
 	/**
-	 * calls the Copyable interface abortCopy method to clear temp files, etc. when application is closed due to an unhandled exception
-	 * @param e - event trigger
+	 * calls the Copyable abortCopy method to clear temp files, etc. when application is closed due to an unhandled exception
+	 * @param e Triggering event
 	 */
 	public void abort(Event e){
 		if (copyObject.copiesInProgress() > 0){
@@ -123,8 +130,8 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	};
 	
 	/**
-	 * listener method for buttons for browsing input/output files
-	 * @param input
+	 * listener method for input/output buttons
+	 * @param input is the button an input or output button
 	 */
 	protected void fileChooser(boolean input, List<String> extensions) {
 		if (input) 
@@ -145,6 +152,9 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 		}		
 	}
 	
+	/**
+	 * listener method for input/output folder buttons
+	 */
 	protected void dirChooser() {
 		{
 			dirChooser.setTitle("Output Folder");
@@ -160,9 +170,9 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	
 	/**
 	 * Configures the File Open/Save dialog
-	 * @param fileChooser
-	 * @param title
-	 * @param extensions extensions that can be chosen in the File Open/Save dialog
+	 * @param fileChooser FileChooser object to be configured
+	 * @param title Title of the dialog box
+	 * @param extensions Extensions that can be chosen in the File Open/Save dialog
 	 */
 	private static void configureFileChooser(final FileChooser fileChooser, String title, List<String> extensions) {
 		//removes all extension filters (lest we have a bug where the list keeps growing)
@@ -179,7 +189,8 @@ public abstract class CopyPane<E extends CopyClass> extends BorderPane {
 	}
 	
 	/**
-	 * logs to the logArea
+	 * allows logging output to be sent to the logArea of the CopyPane
+	 * @return a Handler object that can be used by a logger to write messages to the logArea
 	 */
 	public Handler logToLogArea(){
 		class TextAreaHandler extends ConsoleHandler {

@@ -24,10 +24,11 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.layout.GridPane;
 import xmlTools.AccountingCTTZip.AccountingCTTZip;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+
 /**
- * 
  * Create a custom Pane to display options for copying accounting rules
- *  
  */
 public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 	private static final Logger LOGGER = Logger.getLogger( AccountingCopyPane.class.getName() );
@@ -46,9 +47,15 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 	private GridPane editMiscPane = new GridPane();
 	private GridPane accountingPane = new GridPane();
 	
+	/**
+	 * Creates a UI Pane instance for handling accounting CTT zip copies
+	 */
 	public AccountingCopyPane() {
 		copyObject = new AccountingCTTZip();
+		//sets Extensions supported by this UI Pane to zip files
 		setExtensions();
+		
+		//starts creating all the UI elements and controls
 		inputOutputPane.add(new Label("Input File: "), 0, 0);
 		inputOutputPane.add(inputFilePath, 1, 0);
 		inputOutputPane.add(inputButton, 2, 0);
@@ -58,9 +65,6 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 
 		accountingPane.add(inputOutputPane, 0, 0);
 		
-		//radio buttons for type of processing to do on XML
-		
-		//changeEntityButton.setSelected(true);
 		editEntitiesPane.add(editEntitiesButton, 0, 0);
 		editEntitiesPane.add(new Label("Entities to check: "), 0, 1);
 		editEntitiesPane.add(entitiesToCheck, 0, 2);
@@ -109,12 +113,19 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 		
 		//adds accountingPane to AccountingCopyPane
 		setTop(accountingPane);
+		
+		//sets the behavior of the checkboxes upon checking
+		editEntitiesButton.selectedProperty().addListener(new CheckBoxListener(editEntitiesButton));
+		editAccountingSectionsButton.selectedProperty().addListener(new CheckBoxListener(editAccountingSectionsButton));
+		editMiscButton.selectedProperty().addListener(new CheckBoxListener(editMiscButton));
+		
+		//sets all checkboxes to non-editable initially
+		entitiesToCheck.setEditable(false);
+		accountingSectionsToCheck.setEditable(false);
+		udfLabel.setEditable(false);
+		subTree.setEditable(false);
 	}
 	
-
-	/**
-	 * listener method for copy button
-	 */
 	@Override
 	void copy(Event event) throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException, SAXException, TransformerException{
 		if (editEntitiesButton.isSelected()){
@@ -137,12 +148,51 @@ public class AccountingCopyPane extends CopyPane<AccountingCTTZip>{
 				copyObject.setArgs("output", outputFilePath.getText());
 				int numCopiedXMLs = copyObject.startCopying();
 				LOGGER.log(Level.INFO, "Program successfully copied " + numCopiedXMLs + " XMLs.");
-
 			}
 		} catch (FileNotFoundException e){
 			Alert alert = new Alert(AlertType.WARNING, "Files do not exist!");
 			LOGGER.log(Level.WARNING, e.toString(), e);
 			alert.showAndWait();
 		}	
+	}
+	
+	//creates a class to listen to the checkbox and disable textfields unless the related checkbox is selected
+	private class CheckBoxListener implements ChangeListener<Boolean> {
+		private final CheckBox cb;
+		CheckBoxListener(CheckBox cb) {
+			this.cb = cb;
+		}
+		@Override
+		public void changed(ObservableValue<? extends Boolean> observable, Boolean old_val, Boolean new_val) {
+			String cbLabel = cb.getText();
+			if (old_val && !new_val){
+				switch (cbLabel){
+					case "Edit entities": 
+						entitiesToCheck.setEditable(false);
+						break;
+					case "Edit accounting sections": 
+						accountingSectionsToCheck.setEditable(false);
+						break;
+					case "Edit miscellaneous rule user defined fields": 
+						udfLabel.setEditable(false);
+						subTree.setEditable(false);
+						break;
+				}
+			}
+			if (!old_val && new_val){
+				switch (cbLabel){
+					case "Edit entities": 
+						entitiesToCheck.setEditable(true);
+						break;
+					case "Edit accounting sections": 
+						accountingSectionsToCheck.setEditable(true);
+						break;
+					case "Edit miscellaneous rule user defined fields": 
+						udfLabel.setEditable(true);
+						subTree.setEditable(true);
+						break;
+				}
+			}
+		}
 	}
 }

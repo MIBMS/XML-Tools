@@ -31,21 +31,18 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * 
- *  common XML copy methods
+ * common XML copy methods - used in a static context
  */
-
-
 public class XMLCopy {
 	private static final Logger LOGGER = Logger.getLogger( XMLCopy.class.getName() );
 	
+	//no-args constructor is private so this class cannot be instantiated
 	private XMLCopy(){}
 	
 	/**
 	 * Copies XML document
-	 * @param ruleIn
-	 * @param args
-	 * @return
+	 * @param ruleIn an input stream representing the XML document to be copied
+	 * @return copied Document
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws XPathExpressionException
@@ -93,9 +90,10 @@ public class XMLCopy {
 	}
 	
 	/**
-	 * creates an ByteOutputStream representing an XML file from an XML document
-	 * @param newDoc
-	 * @return
+	 * creates an ByteOutputStream representing an XML file from an XML document - to be converted to files, zip entries, etc.
+	 * @param newDoc Document that has been copied
+	 * @param customXML custom XML declaration if needed, if not an empty string will suffice
+	 * @return a Byte output stream representing the XML document
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws XPathExpressionException
@@ -130,10 +128,9 @@ public class XMLCopy {
 	
 	/**
 	 * Adds a subtree at the first node with the given Xpath
-	 * @param newDoc
+	 * @param newDoc Document to be modified
 	 * @param xPathExp given XPath
 	 * @param newSubTree Subtree to be added
-	 * @param args
 	 * @throws XPathExpressionException
 	 * @throws SAXException
 	 * @throws IOException
@@ -157,9 +154,9 @@ public class XMLCopy {
 	
 	/**
 	 * change text nodes for all nodes with the given XPath
-	 * @param doc
-	 * @param xPathExp
-	 * @param toChange
+	 * @param doc Document to be modieif
+	 * @param xPathExp xPath of selected nodes to be changed
+	 * @param toChange text to replace the existing text in the nodes selected
 	 * @throws XPathExpressionException
 	 */
 	public static void changeTextNode(Document doc, String xPathExp, String toChange) throws XPathExpressionException{
@@ -183,8 +180,8 @@ public class XMLCopy {
 	
 	/**
 	 * Removes nodes and children of the given XPath - can remove multiple nodes with the same XPath
-	 * @param doc
-	 * @param xPathExp
+	 * @param doc Document to be modified
+	 * @param xPathExp xPath to the nodes to be removed
 	 * @throws XPathExpressionException
 	 */
 	public static void removeXPaths(Document doc, String xPathExp) throws XPathExpressionException{
@@ -200,8 +197,8 @@ public class XMLCopy {
 	
 	/**
 	 * Checks if there are existing nodes with the given XPath
-	 * @param doc
-	 * @param xPathExp
+	 * @param doc Document to be modified
+	 * @param xPathExp xPath to be checked for existing nodes
 	 * @throws XPathExpressionException
 	 */
 	public static int checkXPath(Document doc, String xPathExp) throws XPathExpressionException{

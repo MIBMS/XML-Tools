@@ -30,11 +30,13 @@ import javafx.scene.layout.HBox;
 import javafx.util.converter.IntegerStringConverter;
 import xmlTools.XMLObject;
 
+/**
+ * Creates a CopyPane object for the XMLObject, a subtype of Copyable
+ */
 public class MultipleCopyPane extends CopyPane<XMLObject> {
 	private static final Logger LOGGER = Logger.getLogger( MultipleCopyPane.class.getName() );
 	
 	private GridPane inputOutputPane = new GridPane();
-	//private GridPane xPathPane = new GridPane();
 	private GridPane multiplePane = new GridPane();
 	private TextField xPath = new TextField();
 	private TextField numCopies = new TextField();
@@ -45,6 +47,12 @@ public class MultipleCopyPane extends CopyPane<XMLObject> {
 	private HBox processingActionPane = new HBox(8);
 	private GridPane processingActionSubPane = new GridPane();
 	
+	/**
+	 * Creates an instance of this CopyPane
+	 * initializes the Copyable object with an XMLObject
+	 * sets the extensions to XML
+	 * creates toggle groups for processing action radio buttons
+	 */
 	public MultipleCopyPane(){
 		copyObject = new XMLObject();
 		setExtensions();
@@ -83,32 +91,38 @@ public class MultipleCopyPane extends CopyPane<XMLObject> {
 
 	}
 	
-	//listener method for processing action radio buttons
-		private void changeProcessingActionSubPane(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle)
-		{	
-			RadioButton selectedRadioButton = (RadioButton)processingActionGroup.getSelectedToggle();
-			if (selectedRadioButton != null) 
-			{
-				multiplePane.getChildren().remove(processingActionSubPane);
-				processingActionSubPane = new GridPane();
-				switch (selectedRadioButton.getText()){
-				case "Make multiple copies":
-					processingActionSubPane.add(new Label("Number of Copies: "), 0, 0);
-					processingActionSubPane.add(numCopies, 1, 0);
-					processingActionSubPane.setAlignment(Pos.CENTER);
-					break;
-				case "Replace text nodes":
-					processingActionSubPane.add(new Label("XPath to text node: "), 0, 0);
-					processingActionSubPane.add(xPath, 1, 0);
-					processingActionSubPane.add(new Label("Replace text nodes with: "), 0, 1);
-					processingActionSubPane.add(replaceText, 1, 1);				
-					break;
-				}
+	/**
+	 * listener method for processing action radio buttons
+	 * allows changing of the UI to show the relevant text fields upon selection of different radio button
+	 * @param ov ObservableValue - the selection value
+	 * @param old_toggle old toggle selection
+	 * @param new_toggle new toggle selection
+	 */
+	private void changeProcessingActionSubPane(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle)
+	{	
+		RadioButton selectedRadioButton = (RadioButton)processingActionGroup.getSelectedToggle();
+		if (selectedRadioButton != null) 
+		{
+			multiplePane.getChildren().remove(processingActionSubPane);
+			processingActionSubPane = new GridPane();
+			switch (selectedRadioButton.getText()){
+			case "Make multiple copies":
+				processingActionSubPane.add(new Label("Number of Copies: "), 0, 0);
+				processingActionSubPane.add(numCopies, 1, 0);
 				processingActionSubPane.setAlignment(Pos.CENTER);
-				multiplePane.add(processingActionSubPane, 0, 2);
-				inputOutputPane.setAlignment(Pos.CENTER);
+				break;
+			case "Replace text nodes":
+				processingActionSubPane.add(new Label("XPath to text node: "), 0, 0);
+				processingActionSubPane.add(xPath, 1, 0);
+				processingActionSubPane.add(new Label("Replace text nodes with: "), 0, 1);
+				processingActionSubPane.add(replaceText, 1, 1);				
+				break;
 			}
+			processingActionSubPane.setAlignment(Pos.CENTER);
+			multiplePane.add(processingActionSubPane, 0, 2);
+			inputOutputPane.setAlignment(Pos.CENTER);
 		}
+	}
 	
 	@Override
 	void copy(Event event) throws XPathExpressionException, IOException, URISyntaxException, ParserConfigurationException,

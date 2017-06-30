@@ -21,6 +21,9 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+/**
+ * a CopyClass representing an XML file to be copied
+ */
 public class XMLObject extends CopyClass {
 	private static final Logger LOGGER = Logger.getLogger( XMLObject.class.getName() );
 	private static ArrayList<File> createdFiles = new ArrayList<>();
@@ -33,6 +36,11 @@ public class XMLObject extends CopyClass {
 	//stores number of start copying methods started
 	public static int copiesInProgress = 0;
 	
+	/**
+	 * creates a XMLObject
+	 * allows only the given arguments for this subclass
+	 * sets the extensions that can be accepted by the enclosing CopyPane to xml files
+	 */
 	public XMLObject(){
 		initArgs(new ArrayList<String>(Arrays.asList("selection", "input", "output", "numCopies", "xPath", "replaceText")));
 		setExtensions(new ArrayList<String>(Arrays.asList("xml")));
@@ -44,7 +52,7 @@ public class XMLObject extends CopyClass {
 	}
 	
 	/**
-	 * Clears temporary files
+	 * Clears temporary files if copy operation is interrupted
 	 */
 	private static void clearTemp(){
 		for (int i = 0; i < createdFiles.size(); i++){
@@ -128,6 +136,8 @@ public class XMLObject extends CopyClass {
 	}
 	
 	/**
+	 * Creates multiple copies of the XML, replacing the chosen XPath with each line in the given input replaceText from the enclosing CopyPane
+	 * @return number of copies created
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 * @throws ParserConfigurationException 

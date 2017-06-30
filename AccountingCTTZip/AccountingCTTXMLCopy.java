@@ -30,19 +30,20 @@ class AccountingCTTXMLCopy{
 	 * @throws XPathExpressionException to CopyXML
 	 * @throws IOException to CopyXML
 	 * @throws SAXException to CopyXML
-	 * @throws ParserConfigurationException 
+	 * @throws ParserConfigurationException
+	 * @return Document that has been modified
 	 */
 	static Document modifyXML(Document newDoc, Map<String, String> map) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
 		boolean modified = false;
-		if (map.get("entitiesSelected").equals("true")){
+		if (map.get("entitiesSelected") != null && map.get("entitiesSelected").equals("true")){
 			editEntities(newDoc, map);
 			modified = true;
 		}
-		if (map.get("sectionsSelected").equals("true")){
+		if (map.get("sectionsSelected") != null && map.get("sectionsSelected").equals("true")){
 			editAccountingSections(newDoc, map);
 			modified = true;
 		}
-		if (map.get("miscSelected").equals("true")){
+		if (map.get("miscSelected") != null && map.get("miscSelected").equals("true")){
 			editMisc(newDoc, map);
 			modified = true;
 		}
