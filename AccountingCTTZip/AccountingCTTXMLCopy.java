@@ -14,7 +14,7 @@ import org.xml.sax.SAXException;
 import xmlTools.XMLCopy;
 
 /**
- * Modifies and copies a single XML file
+ * Provides static methods for copying a single accounting CTT XML file
  */
 class AccountingCTTXMLCopy{
 	private static final Logger LOGGER = Logger.getLogger( AccountingCTTXMLCopy.class.getName() );
@@ -26,7 +26,7 @@ class AccountingCTTXMLCopy{
 	private AccountingCTTXMLCopy() {}
 	
 	/**
-	 * Modifies a single XML
+	 * Modifies the XML based on the args map passed to the method
 	 * @throws XPathExpressionException to CopyXML
 	 * @throws IOException to CopyXML
 	 * @throws SAXException to CopyXML
@@ -50,6 +50,15 @@ class AccountingCTTXMLCopy{
 		return newDoc;
 	}
 	
+	/**
+	 * Method for editing entities of the accounting XML
+	 * @param newDoc - document to be edited
+	 * @param map - map of arguments from the CopyClass object
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws ParserConfigurationException
+	 */
 	private static void editEntities(Document newDoc, Map<String, String> map) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
 		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField[fieldLabel=\"TrnEntity\"]");
 		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField/mxAccountingIRULE_FilterDetails/"
@@ -73,6 +82,15 @@ class AccountingCTTXMLCopy{
 		}		
 	}
 	
+	/**
+	 * Method for editing accounting sections of the XML
+	 * @param newDoc - document to be edited
+	 * @param map - map of arguments from the CopyClass object
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws ParserConfigurationException
+	 */
 	private static void editAccountingSections(Document newDoc, Map<String, String> map) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
 		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField[fieldLabel=\"TrnSection\"]");
 		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField/mxAccountingIRULE_FilterDetails/"
@@ -96,12 +114,26 @@ class AccountingCTTXMLCopy{
 		}		
 	}
 	
+	/**
+	 * Method for editing a UDF of the accounting XML
+	 * @param newDoc - document to be edited 
+	 * @param map - map of arguments from the CopyClass object
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws ParserConfigurationException
+	 */
 	private static void editMisc(Document newDoc, Map<String, String> map) throws SAXException, IOException, XPathExpressionException, ParserConfigurationException{
 		XMLCopy.removeXPaths(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE/userDefinedField[fieldLabel=\""
 				+ map.get("udfLabel") + "\"]");
 		XMLCopy.addSubTree(newDoc, "MxML/mxAccountingIRULESet/mxAccountingIRULE", map.get("subTree"));	
 	}
-		
+	
+	/**
+	 * Creates the string of an XML subtree representing a main entity
+	 * @param entity
+	 * @return
+	 */
 	private static String addMainEntity(String entity){
 		//add the additional entity into the document
 		
@@ -115,7 +147,11 @@ class AccountingCTTXMLCopy{
 
 	}
 	
-	
+	/**
+	 * Creates the string of an XML subtree representing an additional entity if additional filter node does not exist
+	 * @param entity
+	 * @return
+	 */
 	private static String addAdditionalEntity(String entity){
 		//add the additional entity into the document
 		
@@ -144,6 +180,11 @@ class AccountingCTTXMLCopy{
 
 	}
 	
+	/**
+	 * Creates the string of an XML subtree representing an additional entity if additional filter node already exists
+	 * @param entity
+	 * @return
+	 */
 	private static String addMoreAdditionalEntities(String entity){
 		//add the additional entity into the document
 		
@@ -167,7 +208,11 @@ class AccountingCTTXMLCopy{
 
 	}
 	
-	
+	/**
+	 * Creates the string of an XML subtree representing a main section
+	 * @param section
+	 * @return
+	 */
 	private static String addMainSection(String section){
 		//add the additional entity into the document
 		
@@ -181,6 +226,11 @@ class AccountingCTTXMLCopy{
 
 	}
 	
+	/**
+	 * Creates the string of an XML subtree representing an additional section if additional filter node does not exist
+	 * @param section
+	 * @return
+	 */
 	private static String addAdditionalSection(String section){
 		//add the additional entity into the document
 		
@@ -209,6 +259,11 @@ class AccountingCTTXMLCopy{
 
 	}
 	
+	/**
+	 * Creates the string of an XML subtree representing an additional section if additional filter node already exists
+	 * @param section
+	 * @return
+	 */
 	private static String addMoreAdditionalSections(String section){
 		//add the additional entity into the document
 		
